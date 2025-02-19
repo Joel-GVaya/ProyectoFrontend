@@ -78,12 +78,26 @@ export const useDataStore = defineStore("data", {
     },
     async populatePacientes() {
       try {
-        const response = await axios.get(`${SERVER}/pacientes`);
-        this.pacientes = response.data;
+        const token = localStorage.getItem("token"); // Obtener el token del login
+        console.log("Token:", token);
+        
+        if (!token) {
+          console.error("No hay token disponible");
+          return;
+        }
+    
+        const response = await axios.get(`${SERVER}/pacientes`, {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
+    
+        console.log("Respuesta de pacientes:", response.data);
+        this.pacientes = response.data.data;
       } catch (error) {
-        console.log(error)
+        console.log("Error al cargar pacientes:", error);
       }
-    },
+    }
+    
+  ,
 
     async populateLlamadas() {
       try {
@@ -185,8 +199,9 @@ export const useDataStore = defineStore("data", {
         });
     
         if (response.data) {
-          localStorage.setItem("operador", JSON.stringify(response.data));
-          return response.data;
+          localStorage.setItem("operador", JSON.stringify(response.data.data));
+          localStorage.setItem("token", JSON.stringify(response.data.data.token));
+          return response.data.data;
         } else {
           return null;
         }
