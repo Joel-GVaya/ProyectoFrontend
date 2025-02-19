@@ -48,7 +48,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/llamadas_salientes`);
         this.llamadas_salientes = response.data;
       } catch (error) {
-        alert(error)
+        console.log(error)
       }
     },
     async populateLlamadasEntrantes() {
@@ -56,7 +56,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/llamadas_entrantes`);
         this.llamadas_entrantes = response.data;
       } catch (error) {
-        alert(error)
+        console.log(error)
       }
     },
     async populateZonas() {
@@ -64,7 +64,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/zonas`);
         this.zonas = response.data;
       } catch (error) {
-        alert(error)
+        console.log(error)
       }
     },
 
@@ -73,7 +73,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/operadores`);
         this.operadores = response.data;
       } catch (error) {
-        alert(error)
+        console.log(error)
       }
     },
     async populatePacientes() {
@@ -81,7 +81,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/pacientes`);
         this.pacientes = response.data;
       } catch (error) {
-        alert(error)
+        console.log(error)
       }
     },
 
@@ -90,7 +90,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/llamadas_entrantes`);
         this.llamadas_entrantes = response.data;
       } catch (error) {
-        alert(error)
+        console.log(error)
       }
     },
 
@@ -103,7 +103,7 @@ export const useDataStore = defineStore("data", {
         );
         this.llamadas_entrantes.push(response.data);
       } catch (error) {
-        alert(error)
+        console.log(error)
       }
     },
 
@@ -117,7 +117,7 @@ export const useDataStore = defineStore("data", {
           this.llamadas_entrantes.splice(index, 1);
         }
       } catch (error) {
-        alert(error)
+        console.log(error)
       }
     },
 
@@ -134,7 +134,7 @@ export const useDataStore = defineStore("data", {
           this.llamadas_entrantes[index] = response.data;
         }
       } catch (error) {
-        alert(error.message);
+        console.log(error.message);
       }
     },
     
@@ -143,7 +143,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/llamadas_entrantes/${id}`);
         return response.data;
       } catch (error) {
-        alert(error)
+        console.log(error)
         return
       }
     },
@@ -152,7 +152,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/llamadas_salientes/${id}`);
         return response.data;
       } catch (error) {
-        alert(error)
+        console.log(error)
         return
       }
     },
@@ -162,7 +162,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/pacientes/${id}`);
         return response.data;
       } catch (error) {
-        alert(`Error al obtener el paciente con id: ${id}`, error);
+        console.log(`Error al obtener el paciente con id: ${id}`, error);
         return null;
       }
     },
@@ -172,27 +172,26 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/operadores/${id}`);
         return response.data;
       } catch (error) {
-        alert(`Error al obtener el operador con id: ${id}`, error);
+        console.log(`Error al obtener el operador con id: ${id}`, error);
         return null;
       }
     },
 
     async login(correo, contrasena) {
       try {
-        const response = await axios.get(
-          `${SERVER}/operadores?correo=${correo}&password=${contrasena}`
-        );
-        if (response.data.length > 0) {
-          localStorage.setItem("operador", JSON.stringify(response.data[0]));
-          return response.data[0];
+        const response = await axios.post(`${SERVER}/login`, {
+          correo: correo,
+          password: contrasena,
+        });
+    
+        if (response.data) {
+          localStorage.setItem("operador", JSON.stringify(response.data));
+          return response.data;
         } else {
           return null;
         }
       } catch (error) {
-        alert(
-          `Error al obtener el operador con correo: ${correo}`,
-          error
-        );
+        console.error(`Error en login con correo: ${correo}`, error);
         return null;
       }
     },
@@ -208,7 +207,7 @@ export const useDataStore = defineStore("data", {
           }
         }
       } catch (error) {
-        alert(error);
+        console.log(error);
       }
     },
     async loadPatient(id) {
@@ -216,7 +215,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/pacientes/${id}`);
         return response.data;
       } catch (error) {
-        alert("Error al cargar los datos del paciente.");
+        console.log("Error al cargar los datos del paciente.");
       }
     },
     async addPatient(paciente) {
@@ -224,7 +223,7 @@ export const useDataStore = defineStore("data", {
         const reponse = await axios.post(`${SERVER}/pacientes`, paciente);
         this.pacientes.push(reponse.data);
       } catch (error) {
-        alert(error);
+        console.log(error);
       }
     },
     async updatePaciente(id, paciente) {
@@ -235,7 +234,7 @@ export const useDataStore = defineStore("data", {
           this.pacientes[index] = response.data;
         }
       } catch (error) {
-        alert(error);
+        console.log(error);
       }
     },
 
@@ -244,7 +243,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/llamadas_entrantes?operador_id=${operador_id}`);
         return response.data;
       } catch (error) {
-        alert(error);
+        console.log(error);
         return [];
       }
     },
@@ -254,7 +253,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/llamadas_entrantes?paciente_id=${paciente_id}`);
         return response.data;
       } catch (error) {
-        alert(error);
+        console.log(error);
         return [];
       }
     },
@@ -264,7 +263,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/llamadas_salientes?operador_id=${operador_id}`);
         return response.data;
       } catch (error) {
-        alert(error);
+        console.log(error);
         return [];
       }
     },
@@ -274,7 +273,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/zonas`);
         return response.data;
       } catch (error) {
-        alert(error);
+        console.log(error);
         return [];
       }
     },
@@ -284,7 +283,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/avisos`);
         return response.data;
       } catch (error) {
-        alert(error);
+        console.log(error);
         return [];
       }
     },
@@ -294,7 +293,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/avisos/${id}`);
         return response.data;
       } catch (error) {
-        alert(`Error al obtener el aviso con id: ${id}`, error);
+        console.log(`Error al obtener el aviso con id: ${id}`, error);
         return null;
       }
     },
@@ -306,21 +305,21 @@ export const useDataStore = defineStore("data", {
           this.avisos[index] = response.data;
         }
       } catch (error) {
-        alert(error.message);
+        console.log(error.message);
       }
     },
     async deleteAvisoByID(id) {
       try {
         await axios.delete(`${SERVER}/avisos/${id}`);
       } catch (error) {
-        alert(`Error al eliminar el aviso con id: ${id}`, error);
+        console.log(`Error al eliminar el aviso con id: ${id}`, error);
       }
     },
     async registrarAviso(aviso) {
       try {
         const response = await axios.post(`${SERVER}/avisos`, aviso);
       } catch (error) {
-        alert(error);
+        console.log(error);
       }
     },
   },
