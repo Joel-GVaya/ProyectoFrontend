@@ -1,0 +1,515 @@
+{
+  "zonas": [
+    {
+      "id": "1",
+      "nombre": "Alicante"
+    },
+    {
+      "id": "2",
+      "nombre": "Valencia"
+    },
+    {
+      "id": "3",
+      "nombre": "Castellon"
+    }
+  ],
+  "operadores": [
+    {
+      "id": "1",
+      "nombre": "Juan Pérez",
+      "telefono": "600123456",
+      "correo": "juan.perez@example.com",
+      "rol": "Administrador",
+      "zona": 1,
+      "idiomas": "Español, Inglés",
+      "fecha_contrato": "2023-01-15",
+      "fecha_baja": null,
+      "nombre_user": "jperez",
+      "password": "hashedpassword1"
+    },
+    {
+      "id": "2",
+      "nombre": "María López",
+      "telefono": "600654321",
+      "correo": "maria.lopez@example.com",
+      "rol": "Usuario",
+      "zona": 2,
+      "idiomas": "Español, Francés",
+      "fecha_contrato": "2022-06-10",
+      "fecha_baja": null,
+      "nombre_user": "mlopez",
+      "password": "hashedpassword2"
+    },
+    {
+      "id": "3",
+      "nombre": "Carlos Gómez",
+      "telefono": "600987654",
+      "correo": "carlos.gomez@example.com",
+      "rol": "Usuario",
+      "zona": 3,
+      "idiomas": "Español, Alemán",
+      "fecha_contrato": "2021-05-20",
+      "fecha_baja": null,
+      "nombre_user": "cgomez",
+      "password": "hashedpassword3"
+    },
+    {
+      "id": "4",
+      "nombre": "Ana Torres",
+      "telefono": "611223344",
+      "correo": "ana.torres@example.com",
+      "rol": "Administrador",
+      "zona": 1,
+      "idiomas": "Español, Portugués",
+      "fecha_contrato": "2020-08-15",
+      "fecha_baja": null,
+      "nombre_user": "atorres",
+      "password": "hashedpassword4"
+    },
+    {
+      "id": "5",
+      "nombre": "Diego Ruiz",
+      "telefono": "622334455",
+      "correo": "diego.ruiz@example.com",
+      "rol": "Usuario",
+      "zona": 1,
+      "idiomas": "Español, Italiano",
+      "fecha_contrato": "2021-12-01",
+      "fecha_baja": null,
+      "nombre_user": "druiz",
+      "password": "hashedpassword5"
+    },
+    {
+      "id": "6",
+      "nombre": "Luis Ramírez",
+      "telefono": "633445566",
+      "correo": "luis.ramirez@example.com",
+      "rol": "Usuario",
+      "zona": 2,
+      "idiomas": "Español, Catalán",
+      "fecha_contrato": "2023-05-12",
+      "fecha_baja": null,
+      "nombre_user": "lramirez",
+      "password": "hashedpassword6"
+    },
+    {
+      "id": "7",
+      "nombre": "Elena Martín",
+      "telefono": "655667788",
+      "correo": "elena.martin@example.com",
+      "rol": "Administrador",
+      "zona": 3,
+      "idiomas": "Español, Gallego",
+      "fecha_contrato": "2022-03-10",
+      "fecha_baja": null,
+      "nombre_user": "emartin",
+      "password": "hashedpassword7"
+    },
+    {
+      "id": "8",
+      "nombre": "Elena Martín",
+      "telefono": "655667788",
+      "correo": "prueba.martin@example.com",
+      "rol": "Administrador",
+      "zona": 3,
+      "idiomas": "Español, Gallego",
+      "fecha_contrato": "2022-03-10",
+      "fecha_baja": null,
+      "nombre_user": "emartin",
+      "password": "hashedpassword8"
+    }
+  ],
+  "pacientes": [
+    {
+      "id": "1",
+      "nombre": "Pedro Sánchez",
+      "fecha_nac": "1950-04-20",
+      "DNI": "12345678A",
+      "num_sip": 100123456,
+      "telefono": "612345678",
+      "correo": "pedro.sanchez@example.com",
+      "direccion": "Calle Mayor 10",
+      "ciudad": "Madrid",
+      "cp": 28001,
+      "zona": 1,
+      "sit_personal": "Solo",
+      "sit_sanitaria": "Diabetes",
+      "sit_habitaculo": "Casa Propia",
+      "sit_economica": "Pensión",
+      "autonomia": true,
+      "personas_contacto": [
+        {
+          "nombre": "María",
+          "telefono": "612345678",
+          "apellido": "Sánchez",
+          "relacion": "Hija"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "nombre": "Laura Fernández",
+      "fecha_nac": "1965-08-15",
+      "DNI": "87654321B",
+      "num_sip": 200654321,
+      "telefono": "698765432",
+      "correo": "laura.fernandez@example.com",
+      "direccion": "Av. Andalucía 5",
+      "ciudad": "Sevilla",
+      "cp": 41005,
+      "zona": 2,
+      "sit_personal": "Casada",
+      "sit_sanitaria": "Hipertensión",
+      "sit_habitaculo": "Piso",
+      "sit_economica": "Jubilada",
+      "autonomia": false,
+      "personas_contacto": [
+        {
+          "nombre": "Carlos",
+          "telefono": "698765432",
+          "apellido": "Fernández",
+          "relacion": "Marido"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "nombre": "Antonio López",
+      "fecha_nac": "1955-06-22",
+      "DNI": "33445566D",
+      "num_sip": 400334455,
+      "telefono": "644556677",
+      "correo": "antonio.lopez@example.com",
+      "direccion": "Calle de la Paz 12",
+      "ciudad": "Barcelona",
+      "cp": 18002,
+      "zona": 2,
+      "sit_personal": "Viudo",
+      "sit_sanitaria": "Cardiopatía",
+      "sit_habitaculo": "Casa Propia",
+      "sit_economica": "Pensión",
+      "autonomia": false,
+      "personas_contacto": [
+        {
+          "nombre": "María",
+          "telefono": "644556677",
+          "apellido": "López",
+          "relacion": "Hija"
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "nombre": "Beatriz Domínguez",
+      "fecha_nac": "1980-11-05",
+      "DNI": "55667788E",
+      "num_sip": 500556677,
+      "telefono": "677889900",
+      "correo": "beatriz.dominguez@example.com",
+      "direccion": "Ronda de la Muralla 20",
+      "ciudad": "Lugo",
+      "cp": 27002,
+      "zona": 3,
+      "sit_personal": "Soltera",
+      "sit_sanitaria": "Asma",
+      "sit_habitaculo": "Piso",
+      "sit_economica": "Empleado",
+      "autonomia": true,
+      "personas_contacto": [
+        {
+          "nombre": "Carlos",
+          "telefono": "677889900",
+          "apellido": "Domínguez",
+          "relacion": "Hermano"
+        },
+        {
+          "nombre": "María",
+          "telefono": "677889900",
+          "apellido": "Domínguez",
+          "relacion": "Hermana"
+        }
+      ]
+    },
+    {
+      "id": "155e",
+      "nombre": "Daniel Alemany",
+      "fecha_nac": "2025-02-13",
+      "DNI": "33445566D",
+      "num_sip": "298377504445",
+      "telefono": "602009933",
+      "correo": "dani@gmail.es",
+      "direccion": "Calle de la Paz 12",
+      "ciudad": "Alicante",
+      "cp": "03800",
+      "zona": 1,
+      "sit_personal": "Viudo con dos hijos.\nHola prueba",
+      "sit_sanitaria": "Enfermo\nHola prueba",
+      "sit_habitaculo": "Casa propia\nHola prueba",
+      "sit_economica": "Trabajo activo. Lugar: Batoi",
+      "autonomia": "true",
+      "personas_contacto": [
+        {
+          "nombre": "María",
+          "apellido": "López",
+          "telefono": "111222333",
+          "relacion": "Hija"
+        },
+        {
+          "nombre": "Adam",
+          "apellido": "Aaloul",
+          "telefono": "999999999",
+          "relacion": "Primo"
+        }
+      ]
+    },
+    {
+      "id": "6739",
+      "nombre": "Marieta Fea",
+      "fecha_nac": "2025-02-01",
+      "DNI": "87654321B",
+      "num_sip": "298377504445",
+      "telefono": "602009933",
+      "correo": "marieta@gmail.com",
+      "direccion": "Calle Mayor 10",
+      "ciudad": "Ayora",
+      "cp": "15402",
+      "zona": "2",
+      "sit_personal": "Casada",
+      "sit_sanitaria": "Enferma",
+      "sit_habitaculo": "En casa propia",
+      "sit_economica": "Pensión. Monto: 400€",
+      "autonomia": true,
+      "personas_contacto": [
+        {
+          "nombre": "Carlos",
+          "apellido": "Prime",
+          "telefono": "342343242",
+          "relacion": "Hermano"
+        }
+      ]
+    }
+  ],
+  "avisos": [
+    {
+      "id": "1",
+      "operador_id": 1,
+      "tipo": "puntual",
+      "categoria": "aviso",
+      "descripcion": "Aviso de prueba",
+      "fecha_inicio": "2024-02-05 10:00:00",
+      "frecuencia": "mensual",
+      "zona_afectada": 1,
+      "paciente_id": 1
+    },
+    {
+      "id": "2",
+      "operador_id": 6,
+      "tipo": "recurrente",
+      "categoria": "seguimiento",
+      "descripcion": "Seguimiento semanal",
+      "fecha_inicio": "2024-02-06 09:00:00",
+      "frecuencia": "semanal",
+      "zona_afectada": 6,
+      "paciente_id": 4
+    },
+    {
+      "id": "3",
+      "operador_id": 7,
+      "tipo": "puntual",
+      "categoria": "consulta",
+      "descripcion": "Consulta urgente",
+      "fecha_inicio": "2024-02-06 11:00:00",
+      "frecuencia": "semanal",
+      "zona_afectada": 7,
+      "paciente_id": 5
+    },
+    {
+      "id": "4",
+      "operador_id": 1,
+      "tipo": "puntual",
+      "categoria": "aviso",
+      "descripcion": "Aviso de prueba",
+      "fecha_inicio": "2024-02-08 10:00:00",
+      "frecuencia": null,
+      "zona_afectada": 1,
+      "paciente_id": 1
+    },
+    {
+      "id": "5",
+      "operador_id": 1,
+      "tipo": "puntual",
+      "categoria": "aviso",
+      "descripcion": "Aviso de prueba",
+      "fecha_inicio": "2024-02-05 10:00:00",
+      "frecuencia": null,
+      "zona_afectada": 1,
+      "paciente_id": 1
+    },
+    {
+      "id": "e483",
+      "operador_id": 1,
+      "tipo": "puntual",
+      "categoria": "aviso",
+      "descripcion": "AvisoTesteoPrueba123",
+      "fecha_inicio": "2025-03-12T20:30",
+      "frecuencia": "diaria",
+      "zona_afectada": "2",
+      "paciente_id": 1
+    },
+    {
+      "id": "2657",
+      "operador_id": 1,
+      "tipo": "puntual",
+      "categoria": "aviso",
+      "descripcion": "Aviso Testeo Prueba 123",
+      "fecha_inicio": "2025-02-20T22:35",
+      "frecuencia": "diaria",
+      "zona_afectada": "2",
+      "paciente_id": 1
+    }
+  ],
+  "llamadas_entrantes": [
+    {
+      "id": "1",
+      "fecha_hora": "2024-02-05 11:00:00",
+      "operador_id": 1,
+      "paciente_id": 1,
+      "emergencia": true,
+      "subtipo": "crisis_angustia",
+      "descripcion": "Paciente con crisis de angustia",
+      "duracion": 300
+    },
+    {
+      "id": "2",
+      "fecha_hora": "2024-02-06 08:30:00",
+      "operador_id": 7,
+      "paciente_id": 5,
+      "emergencia": false,
+      "subtipo": "consulta_medicacion",
+      "descripcion": "Paciente consulta sobre medicación",
+      "duracion": 240
+    },
+    {
+      "id": "3",
+      "fecha_hora": "2024-02-06 10:00:00",
+      "operador_id": 6,
+      "paciente_id": 4,
+      "emergencia": false,
+      "subtipo": "recordatorio_cita",
+      "descripcion": "Recordatorio de cita médica",
+      "duracion": 180
+    },
+    {
+      "id": "4",
+      "fecha_hora": "2024-02-06 11:00:00",
+      "operador_id": 2,
+      "paciente_id": 2,
+      "emergencia": false,
+      "subtipo": "seguimiento_rutinario",
+      "descripcion": "Seguimiento rutinario",
+      "duracion": 120
+    },
+    {
+      "id": "bd8f",
+      "paciente_id": "1",
+      "subtipo": "emergencia_social",
+      "descripcion": "asdasd",
+      "fecha_hora": "2025-02-06 20:15",
+      "duracion": 7200,
+      "emergencia": true,
+      "operador_id": 8
+    },
+    {
+      "id": "124c",
+      "paciente_id": "2",
+      "subtipo": "emergencia_sanitaria",
+      "fecha_hora": "2025-02-10 18:05",
+      "duracion": 180,
+      "descripcion": "asdasdasd",
+      "emergencia": true,
+      "operador_id": 8
+    },
+    {
+      "id": "babc",
+      "emergencia": false,
+      "paciente_id": "1",
+      "subtipo": "notificar_ausencias",
+      "fecha_hora": "2025-02-10 18:26",
+      "duracion": 3659,
+      "descripcion": "asdasdadad",
+      "operador_id": 8
+    },
+    {
+      "id": "cdeb",
+      "emergencia": true,
+      "paciente_id": "1",
+      "subtipo": "crisis_angustia",
+      "descripcion": "Susto De Los Grandes Edited",
+      "fecha_hora": "2025-02-13 17:26",
+      "duracion": 120,
+      "operador_id": 8
+    },
+    {
+      "id": "e68d",
+      "emergencia": true,
+      "paciente_id": "155e",
+      "subtipo": "emergencia_social",
+      "fecha_hora": "2025-02-17 16:58",
+      "duracion": 120,
+      "descripcion": "NuevaDescripcion",
+      "operador_id": 8
+    },
+    {
+      "id": "e3ae",
+      "emergencia": false,
+      "paciente_id": "1",
+      "subtipo": "notificar_ausencias",
+      "fecha_hora": "2025-02-18 18:09",
+      "duracion": 120,
+      "descripcion": "asdasdasdasd",
+      "operador_id": 8
+    }
+  ],
+  "llamadas_salientes": [
+    {
+      "id": "1",
+      "fecha_hora": "2024-02-05 12:00:00",
+      "operador_id": 2,
+      "paciente_id": 2,
+      "descripcion": "Seguimiento rutinario",
+      "planificada": true,
+      "aviso_id": null,
+      "duracion": 180
+    },
+    {
+      "id": "2",
+      "fecha_hora": "2024-02-06 10:15:00",
+      "operador_id": 6,
+      "paciente_id": 4,
+      "descripcion": "Recordatorio de cita médica",
+      "planificada": true,
+      "aviso_id": 2,
+      "duracion": 120
+    },
+    {
+      "id": "3",
+      "fecha_hora": "2024-02-06 11:30:00",
+      "operador_id": 7,
+      "paciente_id": 5,
+      "descripcion": "Consulta sobre medicación",
+      "planificada": false,
+      "aviso_id": null,
+      "duracion": 300
+    },
+    {
+      "id": "4",
+      "fecha_hora": "2024-02-06 12:30:00",
+      "operador_id": 1,
+      "paciente_id": 1,
+      "descripcion": "Seguimiento de crisis de angustia",
+      "planificada": false,
+      "aviso_id": null,
+      "duracion": 240
+    }
+  ]
+}
