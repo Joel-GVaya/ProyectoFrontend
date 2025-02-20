@@ -34,7 +34,7 @@ export default {
     <RouterView />
     
     <footer>
-      <a>Footer</a>
+      <a>Footer CAMBIADO</a>
     </footer>
   </div>
 </template>
