@@ -45,6 +45,7 @@ export default {
 
     return {
       llamada: {
+        user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
         dia: "",
         hora: "",
         horas: 0,

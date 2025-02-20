@@ -25,16 +25,17 @@ export const useDataStore = defineStore("data", {
       return state.pacientes.filter((paciente) => paciente.zona == zona);
     },
     getNomZonaById: (state) => (id) => {
-      return state.zonas.find((zona) => zona.id == id)?.nombre;
+      return state.zonas.find((zona) => zona.id == id)?.nombre
     },
     getLlamadasEntrantesByPacienteId: (state) => (id) => {
+      console.log(id)
       return state.llamadas_entrantes.filter(
-        (llamada) => llamada.paciente_id == id
+        (llamada) => llamada.paciente ==  id
       );
     },
     getLlamadasSalientesByPacienteId: (state) => (id) => {
       return state.llamadas_salientes.filter(
-        (llamada) => llamada.paciente_id == id
+        (llamada) => llamada.paciente == id
       );
     },
     getNomOperadorById: (state) => (id) => {
@@ -43,26 +44,42 @@ export const useDataStore = defineStore("data", {
   },
 
   actions: {
+    getAuthHeaders() {
+      let token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
+      if (!token) {
+        console.error("No hay token disponible");
+        return null;
+      }
+      return { headers: { "Authorization": `Bearer ${token}` } };
+    },
+
     async populateLlamadasSalientes() {
       try {
-        const response = await axios.get(`${SERVER}/llamadas_salientes`);
-        this.llamadas_salientes = response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+
+        const response = await axios.get(`${SERVER}/llamadas_salientes`, headers);
+        this.llamadas_salientes = response.data.data;
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
     async populateLlamadasEntrantes() {
       try {
-        const response = await axios.get(`${SERVER}/llamadas_entrantes`);
-        this.llamadas_entrantes = response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/llamadas_entrantes`, headers);
+        this.llamadas_entrantes = response.data.data;
       } catch (error) {
         console.log(error)
       }
     },
     async populateZonas() {
       try {
-        const response = await axios.get(`${SERVER}/zonas`);
-        this.zonas = response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/zonas`, headers);
+        this.zonas = response.data.data;
       } catch (error) {
         console.log(error)
       }
@@ -70,54 +87,46 @@ export const useDataStore = defineStore("data", {
 
     async populateOperadores() {
       try {
-        const response = await axios.get(`${SERVER}/operadores`);
-        this.operadores = response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/operadores`, headers);
+        this.operadores = response.data.data;
       } catch (error) {
         console.log(error)
       }
     },
-    async populatePacientes() {
+    async populatePacientes() {   //correcto
       try {
-        const token = localStorage.getItem("token"); // Obtener el token del login
-        console.log("Token:", token);
-        
-        if (!token) {
-          console.error("No hay token disponible");
-          return;
-        }
-    
-        const response = await axios.get(`${SERVER}/pacientes`, {
-          headers: { "Authorization": `Bearer ${token}` },
-        });
-    
-        console.log("Respuesta de pacientes:", response.data);
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+
+        const response = await axios.get(`${SERVER}/pacientes`, headers);
         this.pacientes = response.data.data;
       } catch (error) {
         console.log("Error al cargar pacientes:", error);
       }
-    }
-    
-  ,
+    },
 
-    async populateLlamadas() {
+    /*async populateLlamadas() {
       try {
         const response = await axios.get(`${SERVER}/llamadas_entrantes`);
         this.llamadas_entrantes = response.data;
       } catch (error) {
         console.log(error)
       }
-    },
+    },*/
 
     async registrarLlamadaEntrante(llamada_entrante) {
       try {
-        llamada_entrante.operador_id = 8;
-        const response = await axios.post(
-          `${SERVER}/llamadas_entrantes`,
-          llamada_entrante
-        );
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+    
+        llamada_entrante.user_id = 8;
+        const response = await axios.post(`${SERVER}/llamadas_entrantes`, llamada_entrante, headers);
+
         this.llamadas_entrantes.push(response.data);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
 
@@ -154,7 +163,9 @@ export const useDataStore = defineStore("data", {
     
     async getLlamadaEntrante(id) {
       try {
-        const response = await axios.get(`${SERVER}/llamadas_entrantes/${id}`);
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/llamadas_entrantes/${id}`, headers);
         return response.data;
       } catch (error) {
         console.log(error)
@@ -163,8 +174,10 @@ export const useDataStore = defineStore("data", {
     },
     async getLlamadaSaliente(id) {
       try {
-        const response = await axios.get(`${SERVER}/llamadas_salientes/${id}`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/llamadas_salientes/${id}`, headers);
+        return response.data.data;
       } catch (error) {
         console.log(error)
         return
@@ -173,8 +186,10 @@ export const useDataStore = defineStore("data", {
 
     async getPacienteByID(id) {
       try {
-        const response = await axios.get(`${SERVER}/pacientes/${id}`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/pacientes/${id}`, headers);
+        return response.data.data;
       } catch (error) {
         console.log(`Error al obtener el paciente con id: ${id}`, error);
         return null;
@@ -183,8 +198,10 @@ export const useDataStore = defineStore("data", {
 
     async getOperadorByID(id) {
       try {
-        const response = await axios.get(`${SERVER}/operadores/${id}`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/operadores/${id}`, headers);
+        return response.data.data;
       } catch (error) {
         console.log(`Error al obtener el operador con id: ${id}`, error);
         return null;
@@ -227,8 +244,10 @@ export const useDataStore = defineStore("data", {
     },
     async loadPatient(id) {
       try {
-        const response = await axios.get(`${SERVER}/pacientes/${id}`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/pacientes/${id}`, headers);
+        return response.data.data;
       } catch (error) {
         console.log("Error al cargar los datos del paciente.");
       }
@@ -253,10 +272,12 @@ export const useDataStore = defineStore("data", {
       }
     },
 
-    async getLlamadasEntrantesOperador(operador_id) {
+    async getLlamadasEntrantesOperador(user_id) {
       try {
-        const response = await axios.get(`${SERVER}/llamadas_entrantes?operador_id=${operador_id}`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/llamadas_entrantes?users=${user_id}`, headers);
+        return response.data.data;
       } catch (error) {
         console.log(error);
         return [];
@@ -265,18 +286,22 @@ export const useDataStore = defineStore("data", {
 
     async getLlamadasEntrantesPaciente(paciente_id) {
       try {
-        const response = await axios.get(`${SERVER}/llamadas_entrantes?paciente_id=${paciente_id}`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/llamadas_entrantes?paciente_id=${paciente_id}`, headers);
+        return response.data.data;
       } catch (error) {
         console.log(error);
         return [];
       }
     },
 
-    async getLlamadasSalientesOperador(operador_id) {
+    async getLlamadasSalientesOperador(user_id) {
       try {
-        const response = await axios.get(`${SERVER}/llamadas_salientes?operador_id=${operador_id}`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/llamadas_salientes?users=${user_id}`, headers);
+        return response.data.data;
       } catch (error) {
         console.log(error);
         return [];

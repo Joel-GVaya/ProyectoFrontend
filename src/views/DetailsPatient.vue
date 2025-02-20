@@ -18,6 +18,8 @@ export default {
       "getNomZonaById",
       "getLlamadasSalientesByPacienteId",
       "getLlamadasEntrantesByPacienteId",
+      "populateLlamadasEntrantes",
+      "populateLlamadasSalientes",
     ]),
   },
 
@@ -40,7 +42,7 @@ export default {
     async cargarPaciente() {
       this.paciente = await this.getPacienteByID(this.id);
 
-      this.llamadasEntrantes = this.getLlamadasEntrantesByPacienteId(this.id).map(
+      this.llamadasEntrantes = await this.getLlamadasEntrantesByPacienteId(this.id).map(
         (llamada) => ({
           ...llamada,
           fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
@@ -49,7 +51,7 @@ export default {
         })
       );
 
-      this.llamadasSalientes = this.getLlamadasSalientesByPacienteId(this.id).map(
+      this.llamadasSalientes = await this.getLlamadasSalientesByPacienteId(this.id).map(
         (llamada) => ({
           ...llamada,
           fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
@@ -61,8 +63,10 @@ export default {
   },
 
 
-  mounted() {
-    this.cargarPaciente();
+   async mounted() {
+    await this.cargarPaciente();    
+    await this.populateLlamadasEntrantes();
+    await this.populateLlamadasSalientes();
   },
 };
 </script>
