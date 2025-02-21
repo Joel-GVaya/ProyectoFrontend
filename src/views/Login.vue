@@ -31,12 +31,13 @@ export default {
   },
 
   methods: {
-    ...mapActions(useDataStore, ["login"]),
+    ...mapActions(useDataStore, ["login", "populatePacientes"]),
 
     async handleSubmit() {
       const { correo, paswd } = this.form;
       const user = await this.login(correo, paswd);
       if (user) {
+        await this.populatePacientes();
         this.$router.push({ name: "home" });
       } else {
         alert("Correo o contraseña incorrectos");
@@ -47,6 +48,7 @@ export default {
       loginWithGoogle();
     },
   },
+
 };
 </script>
 
