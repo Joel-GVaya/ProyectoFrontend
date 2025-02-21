@@ -139,6 +139,19 @@ export const useDataStore = defineStore("data", {
       }
     },
 
+    async registrarLlamadaSaliente(llamada_saliente) {
+      try {
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        
+        const response = await axios.post(`${SERVER}/llamadas_salientes`, llamada_saliente, headers);
+
+        this.llamadas_salientes.push(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     async deleteLlamada(id) {
       try {
         const headers = this.getAuthHeaders();
@@ -258,12 +271,13 @@ export const useDataStore = defineStore("data", {
         console.log(error);
       }
     },
-    async updatePaciente(id, paciente) {
+
+    async updatePatient(paciente) {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        cout(`${SERVER}/pacientes/${id}`, paciente, headers);
-        const index = this.pacientes.findIndex((pac) => pac.id == id);
+        const response = await axios.put(`${SERVER}/pacientes/${paciente.id}`, paciente, headers);
+        const index = this.pacientes.findIndex((pac) => pac.id == paciente.id);
         if (index !== -1) {
           this.pacientes[index] = response.data;
         }

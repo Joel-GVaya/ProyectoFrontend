@@ -3,7 +3,6 @@ import { useDataStore } from "../stores/store";
 import { mapState, mapActions } from "pinia";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
-
 export default {
   components: {
     Form,
@@ -16,15 +15,13 @@ export default {
   computed: {
     ...mapState(useDataStore, [
       "llamadas",
-      "getPacientesByOperadorZona",
-      "getNomPacienteById",
-      "getIdByNomPaciente",
       "pacientes",
+      "getNomOperadorById",
     ]),
   },
   data() {
     const mySchema = yup.object({
-      operador_id: yup.number().required("El operador es obligatorio"),
+      operador_id: yup.string().required("El operador es obligatorio"),
       dia: yup
         .string()
         .matches(/^\d{4}-\d{2}-\d{2}$/, "Formato incorrecto, debe ser YYYY-MM-DD")
@@ -34,38 +31,72 @@ export default {
         .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato incorrecto, debe ser HH:MM")
         .required("La hora de la llamada es obligatoria"),
       descripcion: yup.string().max(500, "Máximo 500 caracteres").nullable(),
-      tipo_llamada: yup.string().required("El tipo de llamada es obligatorio"),
+      planificada: yup.string().required("El tipo de llamada es obligatorio"),
       paciente_id: yup.string().required("El paciente es obligatorio"),
-    });
+      horas: yup
+        .number()
+        .min(0, "Las horas deben ser 0 o más")
+        .required("Especifíca las horas de la llamada"),
+      minutos: yup
+        .number()
+        .min(0, "Los minutos deben ser 0 o más")
+        .max(59, "Los minutos deben ser menores de 60")
+        .required("Espefíca los minutos de la llamada"),
+      segundos: yup
+        .number()
+        .min(0, "Los segundos deben ser 0 o más")
+        .max(59, "Los segundos deben ser menores de 60")
+        .required("Especifíca los segundos de la llamada"),
+    }).test(
+      "duracion-valida",
+      "La duración total de la llamada no puede ser 0",
+      function (values) {
+        if (values.horas === 0 && values.minutos === 0 && values.segundos === 0) {
+          return this.createError({ path: "horas", message: "La duración de llamada debe ser superior a 0" });
+        }
+        return true;
+      }
+    );
 
     return {
       llamada: {
         dia: "",
         hora: "",
         operador_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
-        paciente_id: "",
+        paciente_id: this.$route.query.paciente_id || "",
         descripcion: "",
-        tipo_llamada: this.planificada ? "planificada" : "no_planificada",
-        detalles: "",
+        planificada: this.planificada ? true : false,
+        duracion: "",
+        horas: null,
+        minutos: null,
+        segundos: null,
       },
+      operador: {},
       mySchema,
     };
   },
   methods: {
-    ...mapActions(useDataStore, ["registrarLlamadaEntrante", "editIncomingCall", "getLlamadaSaliente"]),
+    ...mapActions(useDataStore, ["registrarLlamadaSaliente", "editIncomingCall", "getLlamadaSaliente"]),
 
     async submitLlamada() {
       const fechaHora = `${this.llamada.dia} ${this.llamada.hora}`;
+      const duracionTotal = (this.llamada.horas * 60 + this.llamada.minutos) * 60 + this.llamada.segundos;
 
       const llamadaData = {
         ...this.llamada,
         fecha_hora: fechaHora,
-        paciente_id: this.llamada.paciente_id,
-        descripcion: this.llamada.descripcion || "",
+        duracion: duracionTotal,
+        descripcion: this.llamada.descripcion || "Sin descripción",
       };
 
+      delete llamadaData.dia;
+      delete llamadaData.hora;
+      delete llamadaData.horas;
+      delete llamadaData.minutos;
+      delete llamadaData.segundos;
+
       if (!this.id) {
-        await this.registrarLlamadaEntrante(llamadaData);
+        await this.registrarLlamadaSaliente(llamadaData);
       } else {
         await this.editIncomingCall(llamadaData);
       }
@@ -79,25 +110,52 @@ export default {
         if (data.fecha_hora) {
           const [fecha, horaCompleta] = data.fecha_hora.split(" ");
           const [hora, minutos] = horaCompleta.split(":");
+          const { horas, minutos: min, segundos } = this.formatDuracion(data.duracion);
 
           this.llamada = {
             ...data,
             dia: fecha,
             hora: `${hora}:${minutos}`,
-            operador_id: data.operador_id,
+            horas,
+            minutos: min,
+            segundos,
           };
         }
       }
     },
+
+    formatDuracion(duracionEnSegundos) {
+      const horas = Math.floor(duracionEnSegundos / 3600);
+      const minutos = Math.floor((duracionEnSegundos % 3600) / 60);
+      const segundos = duracionEnSegundos % 60;
+      return { horas, minutos, segundos };
+    },
+
+    resetLlamada() {
+      this.llamada = {
+        dia: "",
+        hora: "",
+        operador_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
+        paciente_id: this.$route.query.paciente_id || "",
+        descripcion: "",
+        planificada: this.planificada ? true : false,
+        duracion: "",
+        horas: null,
+        minutos: null,
+        segundos: null,
+      };
+      this.operador = JSON.parse(localStorage.getItem('operador'))?.nombre || '';
+    },
   },
-  mounted() {
+  async mounted() {
     if (!this.id) {
       const now = new Date();
       this.llamada.dia = now.toISOString().split("T")[0];
       this.llamada.hora = now.toTimeString().split(" ")[0].slice(0, 5);
+      this.operador = JSON.parse(localStorage.getItem('operador')).nombre;
     } else {
-      console.log("cargando llamada: " + this.id);
-      this.cargarLlamada();
+      this.operador = this.getNomOperadorById(this.llamada.operador_id);
+      await this.cargarLlamada();
     }
   }
 };
@@ -106,22 +164,22 @@ export default {
 <template>
   <div id="form" class="container mt-5">
     <h3 class="mb-4">Registrar llamada saliente</h3>
-    <Form id="llamadaForm" method="post" @submit="submitLlamada" class="needs-validation" novalidate>
+    <Form id="llamadaForm" method="post" @submit="submitLlamada" :validation-schema="mySchema">
       <div class="mb-3">
         <label for="operador" class="form-label">Operador:</label>
-        <Field type="text" name="operador" v-model="llamada.operador_id" class="form-control" disabled />
-        <ErrorMessage name="operador" class="text-danger" />
+        <Field type="text" name="operador_id" v-model="operador" class="form-control" disabled />
+        <ErrorMessage name="operador_id" class="text-danger" />
       </div>
 
       <div class="mb-3">
         <label for="paciente" class="form-label">Paciente:</label>
-        <Field as="select" name="paciente" v-model="llamada.paciente_id" class="form-select">
+        <Field as="select" name="paciente_id" v-model="llamada.paciente_id" class="form-select">
           <option value="" disabled>--- Escoge paciente ---</option>
           <option v-for="paciente in pacientes" :value="paciente.id" :key="paciente.id">
             {{ paciente.nombre }}
           </option>
         </Field>
-        <ErrorMessage name="paciente" class="text-danger" />
+        <ErrorMessage name="paciente_id" class="text-danger" />
       </div>
 
       <div class="mb-3">
@@ -136,23 +194,48 @@ export default {
         <ErrorMessage name="hora" class="text-danger" />
       </div>
 
-      <div class="mb-3" v-if="llamada.tipo_llamada === 'no_planificada'">
-        <label for="detalles" class="form-label">Detalles de la llamada no planificada:</label><br>
-        <Field as="textarea" name="detalles" v-model="llamada.detalles" class="form-control"
-          placeholder="Por ejemplo: Verificación de actuación previa, seguimiento de alarma, etc." />
-        <ErrorMessage name="detalles" class="text-danger" />
+      <div class="mb-3">
+        <label for="duracion" class="form-label">Duración de la llamada:</label>
+        <div class="duration-fields">
+          <Field type="number" name="horas" v-model="llamada.horas" :placeholder="llamada.horas === null ? 'Horas' : ''"
+            min="0" class="form-control" />
+          <span>:</span>
+          <Field type="number" name="minutos" v-model="llamada.minutos"
+            :placeholder="llamada.minutos === null ? 'Minutos' : ''" min="0" max="59" class="form-control" />
+          <span>:</span>
+          <Field type="number" name="segundos" v-model="llamada.segundos"
+            :placeholder="llamada.segundos === null ? 'Segundos' : ''" min="0" max="59" class="form-control" />
+        </div>
+        <ErrorMessage name="horas" class="text-danger" />
+        <br>
+        <ErrorMessage name="minutos" class="text-danger" />
+        <br>
+        <ErrorMessage name="segundos" class="text-danger" />
       </div>
 
-      <div class="d-flex justify-content-between">
-        <button type="submit" class="btn btn-primary" v-if="!id">Añadir</button>
-        <button type="submit" class="btn btn-primary" v-else>Editar</button>
-        <button type="reset" class="btn btn-secondary" v-if="!id">Reset</button>
-        <button type="button" class="btn btn-secondary" v-else @click="cargarLlamada">Reset datos</button>
+      <div class="mb-3">
+        <label for="descripcion" class="form-label">Descripción:</label>
+        <Field as="textarea" name="descripcion" v-model="llamada.descripcion" class="form-control" />
+        <ErrorMessage name="descripcion" class="text-danger" />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" v-if="!id" class="btn btn-primary">Añadir</button>
+        <button type="submit" v-else class="btn btn-primary">Editar</button>
+        <button type="button" v-if="!id" @click="resetLlamada" class="btn btn-secondary">Reset</button>
+        <button type="button" v-else @click="cargarLlamada" class="btn btn-secondary">Reset datos</button>
       </div>
     </Form>
   </div>
 </template>
 
 <style scoped>
-/* Estilos adicionales si es necesario */
+.duration-fields {
+  display: flex;
+  align-items: center;
+}
+
+.duration-fields span {
+  margin: 0 5px;
+}
 </style>

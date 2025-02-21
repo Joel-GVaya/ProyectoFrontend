@@ -26,7 +26,7 @@ export default {
             <RouterLink class="nav-link nav-item-hover" :to="{ name: 'myCallsOperador', params: { operador: operadorId } }">Mis llamadas</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" to="/generateWarn">Crear Aviso</RouterLink>
+            <RouterLink class="nav-link nav-item-hover" :to="{ name: 'generateWarn', query: { tipo: 'alarma' } }">Crear Aviso de Zona</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link nav-item-hover" to="/calendarViewAvisos">Calendario de Avisos</RouterLink>

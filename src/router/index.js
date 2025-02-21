@@ -80,6 +80,7 @@ const router = createRouter({
       path: '/generateWarn',
       name: 'generateWarn',
       component: generateWarn,
+      props: (route) => ({ tipo: route.query.tipo }),
     },
     {
       path: '/warnDetails/:id',

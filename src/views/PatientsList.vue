@@ -4,7 +4,6 @@ import { useDataStore } from "@/stores/store";
 import Patient from "@/components/Patient.vue";
 
 export default {
-
   props: ["id", "zona"],
 
   components: {
@@ -15,14 +14,21 @@ export default {
     return {
       sortKey: "nombre",
       sortOrder: 1,
+      searchQuery: "",
     };
   },
 
   computed: {
     ...mapState(useDataStore, ["pacientes"]),
 
+    pacientesFiltrados() {
+      return this.pacientes.filter((paciente) =>
+        paciente.nombre.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+
     pacientesOrdenados() {
-      return [...this.pacientes].sort((a, b) => {
+      return [...this.pacientesFiltrados].sort((a, b) => {
         let valorA = a[this.sortKey]?.toString().toLowerCase() || "";
         let valorB = b[this.sortKey]?.toString().toLowerCase() || "";
 
@@ -58,6 +64,15 @@ export default {
   <div class="container my-5">
     <h1 class="text-center mb-4">Listado de Pacientes</h1>
 
+    <div class="mb-3">
+      <input
+        type="text"
+        v-model="searchQuery"
+        class="form-control"
+        placeholder="Buscar paciente por nombre"
+      />
+    </div>
+
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-hover rounded-3 shadow-sm">
         <thead class="thead-dark">
@@ -92,30 +107,33 @@ export default {
 .sortable:hover {
   text-decoration: underline;
 }
-table-responsive {
-    margin-left: 20px; /* Añadir margen izquierdo */
-    margin-right: 20px; /* Añadir margen derecho */
+
+.table-responsive {
+  margin-left: 20px; /* Añadir margen izquierdo */
+  margin-right: 20px; /* Añadir margen derecho */
 }
 
 .table-bordered {
-    border: 3px solid #007bff;
-    border-radius: 20px;
+  border: 3px solid #007bff;
+  border-radius: 20px;
 }
 
-.table th, .table td {
-    border-top: 2px solid #007bff !important;
-    border-bottom: 2px solid #007bff !important;
+.table th,
+.table td {
+  border-top: 2px solid #007bff !important;
+  border-bottom: 2px solid #007bff !important;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
 
-.table th, .table td {
-    padding: 12px;
+.table th,
+.table td {
+  padding: 12px;
 }
 
 .table-hover tbody tr:hover {
-    background-color: #e9ecef;
+  background-color: #e9ecef;
 }
 </style>

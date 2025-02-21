@@ -41,9 +41,6 @@ export default {
         personas_contacto: [{ nombre: "", apellido: "", telefono: "", relacion: "" }],
       },
 
-      situacionHabitaculo: ["Casa Propia", "Alquiler", "Residencia", "Otros"],
-      situacionEconomica: ["Pensión", "Trabajo activo", "Desempleado", "Otros"],
-
       schema: yup.object().shape({
         nombre: yup.string().required("El nombre es obligatorio"),
         fecha_nac: yup.date().typeError("Debe ser una fecha válida").required("La fecha de nacimiento es obligatoria"),
@@ -100,23 +97,6 @@ export default {
   methods: {
     ...mapActions(useDataStore, ["loadPatient", "addPatient", "updatePatient"]),
     async submitPatient() {
-      if (this.form.sit_personal === "Solo/a") {
-        this.form.sit_personal = `Solo/a. Pasa solo/a ${this.form.tiempo_solo} horas.`;
-      } else if (this.form.sit_personal === "Acompañado/a") {
-        this.form.sit_personal = `Acompañado/a. Con ${this.form.acompaniado_con}`;
-      } else if (this.form.sit_personal === "Otros") {
-        this.form.sit_personal = `Otros: ${this.form.sit_personal_otros}`;
-      }
-
-      if (this.form.sit_economica === "Pensión") {
-        this.form.sit_economica = `Pensión. Monto: ${this.form.monto_pension}€`;
-      } else if (this.form.sit_economica === "Trabajo activo") {
-        this.form.sit_economica = `Trabajo activo. Lugar: ${this.form.trabajo}`;
-      } else if (this.form.sit_economica === "Desempleado") {
-        this.form.sit_economica = `Desempleado. Motivo: ${this.form.desempleado_por}`;
-      } else if (this.form.sit_economica === "Otros") {
-        this.form.sit_economica = `Otros: ${this.form.sit_economica_otros}`;
-      }
       const usuario = {
         nombre: this.form.nombre,
         fecha_nac: this.form.fecha_nac,
@@ -161,56 +141,64 @@ export default {
       <div class="card-body">
         <Form @submit="submitPatient" :validation-schema="schema">
           <div class="mb-3">
-            <label class="form-label">Nombre Completo</label>
-            <Field name="nombre" v-model="form.nombre" type="text" class="form-control" />
+            <label class="form-label">Nombre completo</label>
+            <Field name="nombre" v-model="form.nombre" type="text" class="form-control"
+              placeholder="Ingrese su nombre completo" />
             <ErrorMessage name="nombre" class="text-danger small" />
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Fecha de Nacimiento</label>
-            <Field name="fecha_nac" v-model="form.fecha_nac" type="date" class="form-control" />
+            <label class="form-label">Fecha de nacimiento</label>
+            <Field name="fecha_nac" v-model="form.fecha_nac" type="date" class="form-control"
+              placeholder="Seleccione su fecha de nacimiento" />
             <ErrorMessage name="fecha_nac" class="text-danger small" />
           </div>
 
           <div class="mb-3">
             <label class="form-label">DNI</label>
-            <Field name="DNI" v-model="form.DNI" type="text" class="form-control" />
+            <Field name="DNI" v-model="form.DNI" type="text" class="form-control" placeholder="Ingrese su DNI" />
             <ErrorMessage name="DNI" class="text-danger small" />
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Número de Tarjeta Sanitaria</label>
-            <Field name="num_sip" v-model="form.num_sip" type="text" class="form-control" />
+            <label class="form-label">Número de tarjeta sanitaria</label>
+            <Field name="num_sip" v-model="form.num_sip" type="text" class="form-control"
+              placeholder="Ingrese el número de tarjeta sanitaria" />
             <ErrorMessage name="num_sip" class="text-danger small" />
           </div>
 
           <div class="mb-3">
             <label class="form-label">Teléfono</label>
-            <Field name="telefono" v-model="form.telefono" type="text" class="form-control" />
+            <Field name="telefono" v-model="form.telefono" type="text" class="form-control"
+              placeholder="Ingrese su número de teléfono" />
             <ErrorMessage name="telefono" class="text-danger small" />
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Correo Electrónico</label>
-            <Field name="correo" v-model="form.correo" type="email" class="form-control" />
+            <label class="form-label">Correo electrónico</label>
+            <Field name="correo" v-model="form.correo" type="email" class="form-control"
+              placeholder="Ingrese su correo electrónico" />
             <ErrorMessage name="correo" class="text-danger small" />
           </div>
 
           <div class="mb-3">
             <label class="form-label">Dirección</label>
-            <Field name="direccion" v-model="form.direccion" type="text" class="form-control" />
+            <Field name="direccion" v-model="form.direccion" type="text" class="form-control"
+              placeholder="Ingrese su dirección" />
             <ErrorMessage name="direccion" class="text-danger small" />
           </div>
 
           <div class="mb-3">
             <label class="form-label">Ciudad</label>
-            <Field name="ciudad" v-model="form.ciudad" type="text" class="form-control" />
+            <Field name="ciudad" v-model="form.ciudad" type="text" class="form-control"
+              placeholder="Ingrese su ciudad" />
             <ErrorMessage name="ciudad" class="text-danger small" />
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Código Postal</label>
-            <Field name="cp" v-model="form.cp" type="text" class="form-control" />
+            <label class="form-label">Código postal</label>
+            <Field name="cp" v-model="form.cp" type="text" class="form-control"
+              placeholder="Ingrese su código postal" />
             <ErrorMessage name="cp" class="text-danger small" />
           </div>
 
@@ -222,46 +210,27 @@ export default {
                 {{ zona.nombre }}
               </option>
             </Field>
-
             <ErrorMessage name="zona" class="text-danger small" />
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Situación Personal</label>
-            <Field as="textarea" name="sit_personal" v-model="form.sit_personal" class="form-control">
-            </Field>
+            <label class="form-label">Situación personal</label>
+            <Field as="textarea" name="sit_personal" v-model="form.sit_personal" class="form-control"
+              placeholder="Describa su situación personal"></Field>
             <ErrorMessage name="sit_personal" class="text-danger small" />
           </div>
 
-          <div v-if="form.sit_personal === 'Solo/a'" class="mb-3">
-            <label class="form-label">¿Cuántas horas pasa solo?</label>
-            <Field name="tiempo_solo" v-model="form.tiempo_solo" type="number" class="form-control" min="0" max="24" />
-            <ErrorMessage name="tiempo_solo" class="text-danger small" />
-          </div>
-
-          <div v-if="form.sit_personal === 'Acompañado/a'" class="mb-3">
-            <label class="form-label">¿Con quién vive?</label>
-            <Field name="acompaniado_con" v-model="form.acompaniado_con" type="text" class="form-control" />
-            <ErrorMessage name="acompaniado_con" class="text-danger small" />
-          </div>
-
-          <div v-if="form.sit_personal === 'Otros'">
-            <label class="form-label">Especifique</label>
-            <Field name="sit_personal_otros" v-model="form.sit_personal_otros" as="textarea" class="form-control" />
-            <ErrorMessage name="sit_personal_otros" class="text-danger small" />
-          </div>
-
           <div class="mb-3">
-            <label class="form-label">Situación Habitacional</label>
+            <label class="form-label">Situación habitacional</label>
             <Field as="textarea" name="sit_habitaculo" v-model="form.sit_habitaculo" class="form-control"
-              placeholder="Barreras arquitectónicas, estado de conservación, tipo de vivienda, ubicación...">
-            </Field>
+              placeholder="Barreras arquitectónicas, estado de conservación, tipo de vivienda, ubicación..."></Field>
             <ErrorMessage name="sit_habitaculo" class="text-danger small" />
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Situación Sanitaria</label>
-            <Field as="textarea" name="sit_sanitaria" v-model="form.sit_sanitaria" class="form-control" />
+            <label class="form-label">Situación sanitaria</label>
+            <Field as="textarea" name="sit_sanitaria" v-model="form.sit_sanitaria" class="form-control"
+              placeholder="Describa su situación sanitaria"></Field>
             <ErrorMessage name="sit_sanitaria" class="text-danger small" />
           </div>
 
@@ -273,17 +242,15 @@ export default {
             </div>
           </div>
 
-
           <div class="mb-3">
-            <label class="form-label">Situación Económica</label>
+            <label class="form-label">Situación económica</label>
             <Field as="textarea" name="sit_economica" v-model="form.sit_economica" class="form-control"
-              placeholder="Pensión, trabajo activo, desempleado...">
-            </Field>
+              placeholder="Pensión, trabajo activo, desempleado..."></Field>
             <ErrorMessage name="sit_economica" class="text-danger small" />
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Personas de Contacto</label>
+            <label class="form-label">Personas de contacto</label>
 
             <div v-for="(persona, index) in form.personas_contacto" :key="index" class="border p-3 mb-3 rounded">
               <h5 class="text-primary">Persona de Contacto {{ index + 1 }}</h5>
@@ -291,28 +258,28 @@ export default {
               <div class="mb-2">
                 <label class="form-label">Nombre</label>
                 <Field :name="`personas_contacto[${index}].nombre`" v-model="persona.nombre" type="text"
-                  class="form-control" placeholder="Nombre" />
+                  class="form-control" placeholder="Ingrese el nombre de la persona de contacto" />
                 <ErrorMessage :name="`personas_contacto[${index}].nombre`" class="text-danger small" />
               </div>
 
               <div class="mb-2">
                 <label class="form-label">Apellido</label>
                 <Field :name="`personas_contacto[${index}].apellido`" v-model="persona.apellido" type="text"
-                  class="form-control" placeholder="Apellido" />
+                  class="form-control" placeholder="Ingrese el apellido de la persona de contacto" />
                 <ErrorMessage :name="`personas_contacto[${index}].apellido`" class="text-danger small" />
               </div>
 
               <div class="mb-2">
                 <label class="form-label">Teléfono</label>
                 <Field :name="`personas_contacto[${index}].telefono`" v-model="persona.telefono" type="text"
-                  class="form-control" placeholder="Teléfono" />
+                  class="form-control" placeholder="Ingrese el teléfono de la persona de contacto" />
                 <ErrorMessage :name="`personas_contacto[${index}].telefono`" class="text-danger small" />
               </div>
 
               <div class="mb-2">
                 <label class="form-label">Relación</label>
                 <Field :name="`personas_contacto[${index}].relacion`" v-model="persona.relacion" type="text"
-                  class="form-control" placeholder="Relación" />
+                  class="form-control" placeholder="Indique la relación de la persona de contacto" />
                 <ErrorMessage :name="`personas_contacto[${index}].relacion`" class="text-danger small" />
               </div>
 
@@ -328,7 +295,7 @@ export default {
 
           <div class="text-center mt-4">
             <button type="submit" class="btn btn-success">
-              Registrar Paciente
+              {{ id ? 'Editar Paciente' : 'Registrar Paciente' }}
             </button>
           </div>
           <div class="text-center mt-4">
