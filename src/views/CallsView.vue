@@ -16,8 +16,8 @@ export default {
 
   async mounted() {
     this.llamada = await this.getLlamadaEntrante(this.id);
-    this.operador = await this.getOperadorByID(this.llamada.operador_id);
-    this.paciente = await this.getPacienteByID(this.llamada.paciente_id);
+    this.operador = await this.getOperadorByID(this.llamada.user_id);
+    this.paciente = await this.getPacienteByID(this.llamada.paciente);
   },
 
   methods: {

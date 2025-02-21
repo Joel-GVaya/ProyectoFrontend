@@ -92,7 +92,7 @@ export default {
           if (data.fecha_hora) {
             const [fecha, horaCompleta] = data.fecha_hora.split(" ");
             const [hora, minutos] = horaCompleta.split(":");
-            const { horas, minutos: min, segundos } = this.formatDuracion(data.duracion);
+            const { horas, minutos: min, segundos } = this.formatDuracion(data.duracion || 0);
 
             this.llamada = {
               ...data,

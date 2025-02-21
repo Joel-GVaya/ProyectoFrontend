@@ -28,7 +28,6 @@ export const useDataStore = defineStore("data", {
       return state.zonas.find((zona) => zona.id == id)?.nombre
     },
     getLlamadasEntrantesByPacienteId: (state) => (id) => {
-      console.log(id)
       return state.llamadas_entrantes.filter(
         (llamada) => llamada.paciente ==  id
       );
@@ -53,6 +52,26 @@ export const useDataStore = defineStore("data", {
       return { headers: { "Authorization": `Bearer ${token}` } };
     },
 
+    async login(correo, contrasena) {
+      try {
+        const response = await axios.post(`${SERVER}/login`, {
+          correo: correo,
+          password: contrasena,
+        });
+    
+        if (response.data) {
+          localStorage.setItem("operador", JSON.stringify(response.data.data));
+          localStorage.setItem("token", JSON.stringify(response.data.data.token));
+          return response.data.data;
+        } else {
+          return null;
+        }
+      } catch (error) {
+        console.error(`Error en login con correo: ${correo}`, error);
+        return null;
+      }
+    },
+    
     async populateLlamadasSalientes() {
       try {
         const headers = this.getAuthHeaders();
@@ -95,7 +114,7 @@ export const useDataStore = defineStore("data", {
         console.log(error)
       }
     },
-    async populatePacientes() {   //correcto
+    async populatePacientes() { 
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
@@ -107,21 +126,11 @@ export const useDataStore = defineStore("data", {
       }
     },
 
-    /*async populateLlamadas() {
-      try {
-        const response = await axios.get(`${SERVER}/llamadas_entrantes`);
-        this.llamadas_entrantes = response.data;
-      } catch (error) {
-        console.log(error)
-      }
-    },*/
-
     async registrarLlamadaEntrante(llamada_entrante) {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-    
-        llamada_entrante.user_id = 8;
+        
         const response = await axios.post(`${SERVER}/llamadas_entrantes`, llamada_entrante, headers);
 
         this.llamadas_entrantes.push(response.data);
@@ -132,7 +141,9 @@ export const useDataStore = defineStore("data", {
 
     async deleteLlamada(id) {
       try {
-        await axios.delete(`${SERVER}/llamadas_entrantes/${id}`);
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        await axios.delete(`${SERVER}/llamadas_entrantes/${id}`, headers);
         const index = this.llamadas_entrantes.findIndex(
           (llamada) => llamada.id == id
         );
@@ -146,9 +157,11 @@ export const useDataStore = defineStore("data", {
 
     async editIncomingCall(call) {
       try {
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
         const response = await axios.put(
           `${SERVER}/llamadas_entrantes/${call.id}`,
-          call
+          call, headers
         );
         const index = this.llamadas_entrantes.findIndex(
           (llamada) => llamada.id == call.id
@@ -166,7 +179,7 @@ export const useDataStore = defineStore("data", {
         const headers = this.getAuthHeaders();
         if (!headers) return;
         const response = await axios.get(`${SERVER}/llamadas_entrantes/${id}`, headers);
-        return response.data;
+        return response.data.data;
       } catch (error) {
         console.log(error)
         return
@@ -208,29 +221,12 @@ export const useDataStore = defineStore("data", {
       }
     },
 
-    async login(correo, contrasena) {
-      try {
-        const response = await axios.post(`${SERVER}/login`, {
-          correo: correo,
-          password: contrasena,
-        });
-    
-        if (response.data) {
-          localStorage.setItem("operador", JSON.stringify(response.data.data));
-          localStorage.setItem("token", JSON.stringify(response.data.data.token));
-          return response.data.data;
-        } else {
-          return null;
-        }
-      } catch (error) {
-        console.error(`Error en login con correo: ${correo}`, error);
-        return null;
-      }
-    },
     async darDeBajaPaciente(id) {
       try {
         if (confirm("¿Está seguro que desea dar de baja a este paciente?")) {
-          await axios.delete(`${SERVER}/pacientes/${id}`);
+          const headers = this.getAuthHeaders();
+          if (!headers) return;
+          await axios.delete(`${SERVER}/pacientes/${id}`, headers);
           const index = this.pacientes.findIndex(
             (paciente) => paciente.id == id
           );
@@ -254,7 +250,9 @@ export const useDataStore = defineStore("data", {
     },
     async addPatient(paciente) {
       try {
-        const reponse = await axios.post(`${SERVER}/pacientes`, paciente);
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const reponse = await axios.post(`${SERVER}/pacientes`, paciente, headers);
         this.pacientes.push(reponse.data);
       } catch (error) {
         console.log(error);
@@ -262,7 +260,9 @@ export const useDataStore = defineStore("data", {
     },
     async updatePaciente(id, paciente) {
       try {
-        cout(`${SERVER}/pacientes/${id}`, paciente);
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        cout(`${SERVER}/pacientes/${id}`, paciente, headers);
         const index = this.pacientes.findIndex((pac) => pac.id == id);
         if (index !== -1) {
           this.pacientes[index] = response.data;
@@ -310,8 +310,10 @@ export const useDataStore = defineStore("data", {
 
     async getZonas() {
       try {
-        const response = await axios.get(`${SERVER}/zonas`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/zonas`, headers);
+        return response.data.data;
       } catch (error) {
         console.log(error);
         return [];
@@ -320,8 +322,10 @@ export const useDataStore = defineStore("data", {
 
     async getAvisos() {
       try {
-        const response = await axios.get(`${SERVER}/avisos`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/avisos`, headers);
+        return response.data.data;
       } catch (error) {
         console.log(error);
         return [];
@@ -330,8 +334,10 @@ export const useDataStore = defineStore("data", {
 
     async getAvisoByID(id) {
       try {
-        const response = await axios.get(`${SERVER}/avisos/${id}`);
-        return response.data;
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.get(`${SERVER}/avisos/${id}`,  headers);
+        return response.data.data;
       } catch (error) {
         console.log(`Error al obtener el aviso con id: ${id}`, error);
         return null;
@@ -339,7 +345,9 @@ export const useDataStore = defineStore("data", {
     },
     async editWarn(aviso) {
       try {
-        const response = await axios.put(`${SERVER}/avisos/${aviso.id}`, aviso);
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.put(`${SERVER}/avisos/${aviso.id}`, aviso, headers);
         const index = this.avisos.findIndex(a => a.id == aviso.id);
         if (index !== -1) {
           this.avisos[index] = response.data;
@@ -350,14 +358,18 @@ export const useDataStore = defineStore("data", {
     },
     async deleteAvisoByID(id) {
       try {
-        await axios.delete(`${SERVER}/avisos/${id}`);
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        await axios.delete(`${SERVER}/avisos/${id}`, headers);
       } catch (error) {
         console.log(`Error al eliminar el aviso con id: ${id}`, error);
       }
     },
     async registrarAviso(aviso) {
       try {
-        const response = await axios.post(`${SERVER}/avisos`, aviso);
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.post(`${SERVER}/avisos`, aviso, headers);
       } catch (error) {
         console.log(error);
       }

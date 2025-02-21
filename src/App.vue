@@ -34,11 +34,17 @@ export default {
     <RouterView />
     
     <footer>
-      <a>Footer</a>
+      <a>Teleasistència - Grup 3 - 2024/2025</a>
     </footer>
   </div>
 </template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+footer{
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 </style>

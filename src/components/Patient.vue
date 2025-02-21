@@ -3,9 +3,6 @@ import { mapActions, mapState } from "pinia";
 import { useDataStore } from "@/stores/store";
 export default {
   props: ["paciente"],
-  computed: {
-    ...mapState(useDataStore, ["getNomZonaById"]),
-  },
   methods: {
     ...mapActions(useDataStore, ["darDeBajaPaciente"]), 
     verPaciente(id) {
@@ -23,7 +20,7 @@ export default {
     <td>{{ paciente.nombre }}</td>
     <td>{{ paciente.telefono }}</td>
     <td>{{ paciente.DNI }}</td>
-    <td>{{ getNomZonaById(paciente.zona_id) }}</td>
+    <td>{{ paciente.zona.nombre }}</td>
     <button name="ver" class="btn btn-success btn-sm me-2 ms-2" @click="verPaciente(paciente.id)">
         <i class="bi bi-eye-fill"> Ver</i>
     </button>

@@ -19,7 +19,6 @@ export default {
       "getLlamadasSalientesByPacienteId",
       "getLlamadasEntrantesByPacienteId",
       "populateLlamadasEntrantes",
-      "populateLlamadasSalientes",
     ]),
   },
 
@@ -64,9 +63,8 @@ export default {
 
 
    async mounted() {
-    await this.cargarPaciente();    
+    await this.cargarPaciente();
     await this.populateLlamadasEntrantes();
-    await this.populateLlamadasSalientes();
   },
 };
 </script>
@@ -93,7 +91,7 @@ export default {
             <li><strong>Dirección: </strong> {{ paciente.direccion }}</li>
             <li><strong>Ciudad: </strong> {{ paciente.ciudad }}</li>
             <li><strong>Código Postal: </strong> {{ paciente.cp }}</li>
-            <li><strong>Zona: </strong> {{ getNomZonaById(paciente.zona) }}</li>
+            <li><strong>Zona: </strong> {{ getNomZonaById(paciente.zona_id) }}</li>
             <li><strong>Situación Personal: </strong> {{ paciente.sit_personal }}</li>
             <li><strong>Situación Sanitaria: </strong> {{ paciente.sit_sanitaria }}</li>
           </ul>
