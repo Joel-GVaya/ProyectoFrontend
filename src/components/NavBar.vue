@@ -21,25 +21,24 @@ export default {
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">  
           <li class="nav-item">
             <RouterLink class="nav-link nav-item-hover" to="/">Listado de pacientes</RouterLink>
-          </li>
+          </li>          
           <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" :to="{ name: 'myCallsOperador', params: { operador: operadorId } }">Mis llamadas</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" :to="{ name: 'generateWarn', query: { tipo: 'alarma' } }">Crear Aviso de Zona</RouterLink>
+            <RouterLink class="nav-link nav-item-hover" to="/registerPatient">Registrar paciente</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link nav-item-hover" to="/calendarViewAvisos">Calendario de Avisos</RouterLink>
           </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" to="/login">Login</RouterLink>
+              <li class="nav-item">
+            <RouterLink class="nav-link nav-item-hover" :to="{ name: 'generateWarn', query: { tipo: 'alarma' } }">Crear Aviso de Zona</RouterLink>
           </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link nav-item-hover" :to="{ name: 'myCallsOperador', params: { operador: operadorId } }">Mis llamadas</RouterLink>
+          </li>
+        
           <li class="nav-item">
             <RouterLink class="nav-link nav-item-hover" to="/logout">Logout</RouterLink>
           </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" to="/registerPatient">Registrar paciente</RouterLink>
-          </li>
+
         </ul>
       </div>
     </div>

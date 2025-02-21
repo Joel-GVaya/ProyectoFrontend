@@ -239,7 +239,7 @@ export const useDataStore = defineStore("data", {
         if (confirm("¿Está seguro que desea dar de baja a este paciente?")) {
           const headers = this.getAuthHeaders();
           if (!headers) return;
-          await axios.delete(`${SERVER}/pacientes/${id}`, headers);
+          await axios.delete(`${SERVER}/pacientes/${id}`, headers );
           const index = this.pacientes.findIndex(
             (paciente) => paciente.id == id
           );

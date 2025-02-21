@@ -38,6 +38,11 @@ export default {
 
   mounted() {
     this.updateData();
+    const usuario = JSON.parse(localStorage.getItem("operador"));
+    if (!usuario) {
+      this.$router.push("/login");
+      return;
+  }
   },
 
   computed: {

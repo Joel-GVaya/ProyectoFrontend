@@ -24,21 +24,21 @@ export default {
     return {
       form: {
         nombre: "",
-        fecha_nac: "",
+        fecha_nac: "", 
         DNI: "",
         num_sip: "",
         telefono: "",
         correo: "",
         direccion: "",
         ciudad: "",
-        cp: "",
-        zona: "",
+        cp: "", 
+        zona_id: "", 
         sit_personal: "",
         sit_sanitaria: "",
         sit_habitaculo: "",
         sit_economica: "",
-        autonomia: false,
-        personas_contacto: [{ nombre: "", apellido: "", telefono: "", relacion: "" }],
+        autonomia: false, 
+        persona_contacto: [{ nombre: "", apellido: "", telefono: "", relacion: "" }],
       },
 
       schema: yup.object().shape({
@@ -59,7 +59,7 @@ export default {
         sit_sanitaria: yup.string().required("Campo obligatorio"),
         sit_habitaculo: yup.string().required("Campo obligatorio"),
         sit_economica: yup.string().required("Campo obligatorio"),
-        personas_contacto: yup.array().of(
+        persona_contacto: yup.array().of(
           yup.object().shape({
             nombre: yup.string().required("El nombre es obligatorio"),
             apellido: yup.string().required("El apellido es obligatorio"),
@@ -77,6 +77,11 @@ export default {
         this.form = JSON.parse(JSON.stringify(paciente));
       }
     }
+    const usuario = JSON.parse(localStorage.getItem("operador"));
+    if (!usuario) {
+      this.$router.push("/login");
+      return;
+  }
   },
 
   computed: {
@@ -98,6 +103,7 @@ export default {
     ...mapActions(useDataStore, ["loadPatient", "addPatient", "updatePatient"]),
     async submitPatient() {
       const usuario = {
+        id: Number(this.id),
         nombre: this.form.nombre,
         fecha_nac: this.form.fecha_nac,
         DNI: this.form.DNI,
@@ -106,14 +112,14 @@ export default {
         correo: this.form.correo,
         direccion: this.form.direccion,
         ciudad: this.form.ciudad,
-        cp: this.form.cp,
-        zona: this.form.zona,
+        cp: Number(this.form.cp),
+        zona_id: Number(this.form.zona), 
         sit_personal: this.form.sit_personal,
         sit_sanitaria: this.form.sit_sanitaria,
         sit_habitaculo: this.form.sit_habitaculo,
         sit_economica: this.form.sit_economica,
-        autonomia: Boolean(this.form.autonomia),
-        personas_contacto: this.form.personas_contacto,
+        autonomia: this.form.autonomia, 
+        persona_contacto: this.form.persona_contacto || "",
       }
       if (this.id) {
         await this.updatePatient(usuario);
@@ -123,11 +129,11 @@ export default {
       this.$router.push("/")
     },
     agregarPersonaContacto() {
-      this.form.personas_contacto.push({ nombre: "", apellido: "", telefono: "", relacion: "" });
+      this.form.persona_contacto.push({ nombre: "", apellido: "", telefono: "", relacion: "" });
     },
 
     eliminarPersonaContacto(index) {
-      this.form.personas_contacto.splice(index, 1);
+      this.form.persona_contacto.splice(index, 1);
     },
   },
 };
@@ -252,35 +258,35 @@ export default {
           <div class="mb-3">
             <label class="form-label">Personas de contacto</label>
 
-            <div v-for="(persona, index) in form.personas_contacto" :key="index" class="border p-3 mb-3 rounded">
+            <div v-for="(persona, index) in form.persona_contacto" :key="index" class="border p-3 mb-3 rounded">
               <h5 class="text-primary">Persona de Contacto {{ index + 1 }}</h5>
 
               <div class="mb-2">
                 <label class="form-label">Nombre</label>
-                <Field :name="`personas_contacto[${index}].nombre`" v-model="persona.nombre" type="text"
+                <Field :name="`persona_contacto[${index}].nombre`" v-model="persona.nombre" type="text"
                   class="form-control" placeholder="Ingrese el nombre de la persona de contacto" />
-                <ErrorMessage :name="`personas_contacto[${index}].nombre`" class="text-danger small" />
+                <ErrorMessage :name="`persona_contacto[${index}].nombre`" class="text-danger small" />
               </div>
 
               <div class="mb-2">
                 <label class="form-label">Apellido</label>
-                <Field :name="`personas_contacto[${index}].apellido`" v-model="persona.apellido" type="text"
+                <Field :name="`persona_contacto[${index}].apellido`" v-model="persona.apellido" type="text"
                   class="form-control" placeholder="Ingrese el apellido de la persona de contacto" />
-                <ErrorMessage :name="`personas_contacto[${index}].apellido`" class="text-danger small" />
+                <ErrorMessage :name="`persona_contacto[${index}].apellido`" class="text-danger small" />
               </div>
 
               <div class="mb-2">
                 <label class="form-label">Teléfono</label>
-                <Field :name="`personas_contacto[${index}].telefono`" v-model="persona.telefono" type="text"
+                <Field :name="`persona_contacto[${index}].telefono`" v-model="persona.telefono" type="text"
                   class="form-control" placeholder="Ingrese el teléfono de la persona de contacto" />
-                <ErrorMessage :name="`personas_contacto[${index}].telefono`" class="text-danger small" />
+                <ErrorMessage :name="`persona_contacto[${index}].telefono`" class="text-danger small" />
               </div>
 
               <div class="mb-2">
                 <label class="form-label">Relación</label>
-                <Field :name="`personas_contacto[${index}].relacion`" v-model="persona.relacion" type="text"
+                <Field :name="`persona_contacto[${index}].relacion`" v-model="persona.relacion" type="text"
                   class="form-control" placeholder="Indique la relación de la persona de contacto" />
-                <ErrorMessage :name="`personas_contacto[${index}].relacion`" class="text-danger small" />
+                <ErrorMessage :name="`persona_contacto[${index}].relacion`" class="text-danger small" />
               </div>
 
               <button type="button" @click="eliminarPersonaContacto(index)" class="btn btn-danger btn-sm mt-2">

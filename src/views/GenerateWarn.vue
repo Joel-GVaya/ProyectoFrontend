@@ -100,6 +100,13 @@ export default {
             this.form.operador_nombre = operador.nombre;
         }
         if (this.id) await this.cargarAviso();
+
+
+        const usuario = JSON.parse(localStorage.getItem("operador"));
+        if (!usuario) {
+      this.$router.push("/login");
+      return;
+  }
     },
 };
 </script>
