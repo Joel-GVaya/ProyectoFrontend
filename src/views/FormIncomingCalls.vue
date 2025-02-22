@@ -31,7 +31,7 @@ export default {
         .required("La hora de la llamada es obligatoria"),
       descripcion: yup.string().max(500, "Máximo 500 caracteres").nullable(),
       subtipo: yup.string().required("El subtipo de la llamada es obligatorio"),
-      paciente_id: yup.string().required("El paciente es obligatorio"),
+      paciente: yup.string().required("El paciente es obligatorio"),
       horas: yup
         .number()
         .min(0, "Las horas deben ser 0 o más")
@@ -87,11 +87,10 @@ export default {
         fecha_hora: fechaHora,
         user_id: Number(this.llamada.user_id),
         paciente: Number(this.llamada.paciente),
-        tipo: this.llamada.emergencia ? "emergencia" : "no_urgente",
+        emergencia: this.llamada.emergencia ? 1 : 0,
         subtipo: this.llamada.subtipo,
         descripcion: this.llamada.descripcion,
         duracion: duracionTotal,
-        paciente_id: this.llamada.paciente,
       };
 
       delete llamadaData.dia;
@@ -99,7 +98,6 @@ export default {
       delete llamadaData.horas;
       delete llamadaData.minutos;
       delete llamadaData.segundos;
-      delete llamadaData.paciente;
 
       if (!this.id) {
         await this.registrarLlamadaEntrante(llamadaData);
@@ -183,7 +181,7 @@ export default {
       </div>
       <div class="form-group">
         <label for="paciente" class="form-label">Persona que realiza la llamada: </label>
-        <Field as="select" name="paciente_id" v-model="llamada.paciente" class="form-select">
+        <Field as="select" name="paciente" v-model="llamada.paciente" class="form-select">
           <option value="" disabled>--- Escoge paciente ---</option>
           <option v-for="paciente in pacientes" :value="paciente.id" :key="paciente.id">
             {{ paciente.nombre }}

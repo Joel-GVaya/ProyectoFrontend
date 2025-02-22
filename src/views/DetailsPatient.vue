@@ -25,7 +25,7 @@ export default {
     ...mapActions(useDataStore, ["getPacienteByID"]),
     
     editarLlamadaEntrante(id) {
-      this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente_id: this.id } });
+      this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente: this.id } });
     },
 
     editarLlamadaSaliente(id) {
@@ -52,7 +52,6 @@ export default {
 
     async cargarPaciente() {
       try {
-        console.log("Cargando paciente con ID:", this.id);
         this.paciente = await this.getPacienteByID(this.id);
 
         this.llamadasEntrantes = this.getLlamadasEntrantesByPacienteId(this.id).map(
@@ -73,7 +72,7 @@ export default {
           })
         );
       } catch (error) {
-        console.error("Error al cargar el paciente:", error);
+        alert("Error al cargar el paciente:", error);
       }
     },
   },
@@ -167,11 +166,11 @@ export default {
             </table>
           </div>
           <div class="btn-container">
-            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: true, paciente_id: paciente.id} }">
+            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: true, paciente: this.paciente.id} }">
               Registrar llamada de emergencia
             </router-link>
 
-            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: false, paciente_id: paciente.id } }">
+            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: false, paciente: this.paciente.id } }">
               Registrar llamada no urgente
             </router-link>
           </div>
