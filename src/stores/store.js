@@ -444,6 +444,7 @@ export const useDataStore = defineStore("data", {
         console.log(`Error al eliminar el aviso con id: ${id}`, error);
       }
     },
+    
     async registrarAviso(aviso) {
       try {
         const headers = this.getAuthHeaders();
