@@ -58,13 +58,21 @@ const router = createRouter({
       path: '/registerIncomingCall',
       name: 'registerIncomingCall',
       component: FormIncomingCalls,
+      props: route => ({
+        emergencia: route.query.emergencia,
+        paciente_id: route.query.paciente_id,
+      }),
     },
     {
       path: '/editIncomingCall/:id',
       name: 'editIncomingCall',
       component: FormIncomingCalls,
-      props: true,
+      props: route => ({
+        id: route.params.id,
+        paciente_id: route.query.paciente_id,
+      }),
     },
+    
     {
       path: '/registerOutgoingCall',
       name: 'registerOutgoingCall',
