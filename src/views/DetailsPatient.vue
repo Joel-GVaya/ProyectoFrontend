@@ -25,7 +25,7 @@ export default {
     ...mapActions(useDataStore, ["getPacienteByID"]),
     
     editarLlamadaEntrante(id) {
-      this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente: this.id } });
+      this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente_id: this.id } });
     },
 
     editarLlamadaSaliente(id) {
@@ -166,11 +166,11 @@ export default {
             </table>
           </div>
           <div class="btn-container">
-            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: true, paciente: this.paciente.id} }">
+            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: true, paciente_id: this.paciente.id} }">
               Registrar llamada de emergencia
             </router-link>
 
-            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: false, paciente: this.paciente.id } }">
+            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: false, paciente_id: this.paciente.id } }">
               Registrar llamada no urgente
             </router-link>
           </div>

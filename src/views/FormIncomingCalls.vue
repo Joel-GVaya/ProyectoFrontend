@@ -31,7 +31,7 @@ export default {
         .required("La hora de la llamada es obligatoria"),
       descripcion: yup.string().max(500, "Máximo 500 caracteres").nullable(),
       subtipo: yup.string().required("El subtipo de la llamada es obligatorio"),
-      paciente: yup.string().required("El paciente es obligatorio"),
+      paciente_id: yup.string().required("El paciente es obligatorio"),
       horas: yup
         .number()
         .min(0, "Las horas deben ser 0 o más")
@@ -62,7 +62,7 @@ export default {
         dia: "",
         hora: "",
         user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
-        paciente: this.$route.query.paciente || "",
+        paciente_id: this.$route.query.paciente_id || "",
         descripcion: "",
         subtipo: "",
         duracion: "",
@@ -86,7 +86,7 @@ export default {
         id: Number(this.id),
         fecha_hora: fechaHora,
         user_id: Number(this.llamada.user_id),
-        paciente: Number(this.llamada.paciente),
+        paciente_id: Number(this.llamada.paciente_id),
         emergencia: this.llamada.emergencia ? 1 : 0,
         subtipo: this.llamada.subtipo,
         descripcion: this.llamada.descripcion,
@@ -123,7 +123,7 @@ export default {
             horas,
             minutos: min,
             segundos,
-            emergencia: data.emergencia === "emergencia",
+            emergencia: data.emergencia === 1,
           };
         }
       }
@@ -141,7 +141,7 @@ export default {
         dia: new Date().toISOString().split("T")[0],
         hora: new Date().toTimeString().split(" ")[0].slice(0, 5),
         user_id: JSON.parse(localStorage.getItem("operador"))?.id || null,
-        paciente: this.$route.query.paciente || "",
+        paciente_id: this.$route.query.paciente_id || "",
         descripcion: "",
         subtipo: "",
         duracion: "",
@@ -180,14 +180,14 @@ export default {
         <ErrorMessage name="user_id" class="text-danger" />
       </div>
       <div class="form-group">
-        <label for="paciente" class="form-label">Persona que realiza la llamada: </label>
-        <Field as="select" name="paciente" v-model="llamada.paciente" class="form-select">
+        <label for="paciente_id" class="form-label">Persona que realiza la llamada: </label>
+        <Field as="select" name="paciente_id" v-model="llamada.paciente_id" class="form-select">
           <option value="" disabled>--- Escoge paciente ---</option>
           <option v-for="paciente in pacientes" :value="paciente.id" :key="paciente.id">
             {{ paciente.nombre }}
           </option>
         </Field>
-        <ErrorMessage name="paciente" class="text-danger" />
+        <ErrorMessage name="paciente_id" class="text-danger" />
       </div>
 
       <div class="form-group">
@@ -255,8 +255,8 @@ export default {
       </div>
 
       <div class="form-actions">
-        <button type="submit" @click="submitLlamada" v-if="!id" class="btn btn-primary">Añadir</button>
-        <button type="submit"  @click="submitLlamada" v-else class="btn btn-primary">Editar</button>
+        <button type="submit" v-if="!id" class="btn btn-primary">Añadir</button>
+        <button type="submit" v-else class="btn btn-primary">Editar</button>
         <button type="button" v-if="!id" @click="resetForm" class="btn btn-secondary">Reset</button>
         <button type="button" v-else @click="cargarLlamada" class="btn btn-secondary">Reset datos</button>
       </div>
