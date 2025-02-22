@@ -10,9 +10,7 @@ export default {
     Field,
     ErrorMessage,
   },
-  props: {
-    id: String,
-  },
+  props: ["id"],
   computed: {
     ...mapState(useDataStore, [
       "llamadas",
@@ -33,7 +31,7 @@ export default {
         .required("La hora de la llamada es obligatoria"),
       descripcion: yup.string().max(500, "Máximo 500 caracteres").nullable(),
       subtipo: yup.string().required("El subtipo de la llamada es obligatorio"),
-      paciente_id: yup.string().required("El paciente es obligatorio"),
+      paciente: yup.string().required("El paciente es obligatorio"),
       horas: yup
         .number()
         .min(0, "Las horas deben ser 0 o más")
@@ -64,7 +62,7 @@ export default {
         dia: "",
         hora: "",
         user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
-        paciente_id: this.$route.query.paciente_id || "",
+        paciente: this.$route.query.paciente || "",
         descripcion: "",
         subtipo: "",
         duracion: "",
@@ -88,7 +86,7 @@ export default {
         id: Number(this.id),
         fecha_hora: fechaHora,
         user_id: Number(this.llamada.user_id),
-        paciente_id: Number(this.llamada.paciente_id),
+        paciente: Number(this.llamada.paciente),
         tipo: this.llamada.emergencia ? "emergencia" : "no_urgente",
         subtipo: this.llamada.subtipo,
         descripcion: this.llamada.descripcion,
@@ -143,7 +141,7 @@ export default {
         dia: new Date().toISOString().split("T")[0],
         hora: new Date().toTimeString().split(" ")[0].slice(0, 5),
         user_id: JSON.parse(localStorage.getItem("operador"))?.id || null,
-        paciente_id: this.$route.query.paciente_id || "",
+        paciente: this.$route.query.paciente || "",
         descripcion: "",
         subtipo: "",
         duracion: "",
@@ -183,13 +181,13 @@ export default {
       </div>
       <div class="form-group">
         <label for="paciente" class="form-label">Persona que realiza la llamada: </label>
-        <Field as="select" name="paciente_id" v-model="llamada.paciente_id" class="form-select">
+        <Field as="select" name="paciente" v-model="llamada.paciente" class="form-select">
           <option value="" disabled>--- Escoge paciente ---</option>
           <option v-for="paciente in pacientes" :value="paciente.id" :key="paciente.id">
             {{ paciente.nombre }}
           </option>
         </Field>
-        <ErrorMessage name="paciente_id" class="text-danger" />
+        <ErrorMessage name="paciente" class="text-danger" />
       </div>
 
       <div class="form-group">

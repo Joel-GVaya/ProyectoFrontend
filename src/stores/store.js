@@ -97,7 +97,6 @@ export const useDataStore = defineStore("data", {
           `${SERVER}/llamadas_entrantes`,
           headers
         );
-        console.log('Llamadas entrantes:', response.data.data);
         this.llamadas_entrantes = response.data.data;
       } catch (error) {
         console.log(error);
