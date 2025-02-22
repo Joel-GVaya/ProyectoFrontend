@@ -32,44 +32,22 @@ export default {
         .required("La hora de la llamada es obligatoria"),
       descripcion: yup.string().max(500, "Máximo 500 caracteres").nullable(),
       planificada: yup.string().required("El tipo de llamada es obligatorio"),
-      paciente_id: yup.string().required("El paciente es obligatorio"),
-      horas: yup
+      paciente: yup.string().required("El paciente es obligatorio"),
+      duracion: yup
         .number()
-        .min(0, "Las horas deben ser 0 o más")
-        .required("Especifíca las horas de la llamada"),
-      minutos: yup
-        .number()
-        .min(0, "Los minutos deben ser 0 o más")
-        .max(59, "Los minutos deben ser menores de 60")
-        .required("Espefíca los minutos de la llamada"),
-      segundos: yup
-        .number()
-        .min(0, "Los segundos deben ser 0 o más")
-        .max(59, "Los segundos deben ser menores de 60")
-        .required("Especifíca los segundos de la llamada"),
-    }).test(
-      "duracion-valida",
-      "La duración total de la llamada no puede ser 0",
-      function (values) {
-        if (values.horas === 0 && values.minutos === 0 && values.segundos === 0) {
-          return this.createError({ path: "horas", message: "La duración de llamada debe ser superior a 0" });
-        }
-        return true;
-      }
-    );
+        .min(1, "La duración debe ser al menos 1 segundo")
+        .required("La duración es obligatoria"),
+    });
 
     return {
       llamada: {
         dia: "",
         hora: "",
         operador_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
-        paciente_id: this.$route.query.paciente_id || "",
+        paciente: this.$route.query.paciente || "",
         descripcion: "",
         planificada: this.planificada ? true : false,
-        duracion: "",
-        horas: null,
-        minutos: null,
-        segundos: null,
+        duracion: null,
       },
       operador: {},
       mySchema,
@@ -80,20 +58,15 @@ export default {
 
     async submitLlamada() {
       const fechaHora = `${this.llamada.dia} ${this.llamada.hora}`;
-      const duracionTotal = (this.llamada.horas * 60 + this.llamada.minutos) * 60 + this.llamada.segundos;
 
       const llamadaData = {
         ...this.llamada,
         fecha_hora: fechaHora,
-        duracion: duracionTotal,
         descripcion: this.llamada.descripcion || "Sin descripción",
       };
 
       delete llamadaData.dia;
       delete llamadaData.hora;
-      delete llamadaData.horas;
-      delete llamadaData.minutos;
-      delete llamadaData.segundos;
 
       if (!this.id) {
         await this.registrarLlamadaSaliente(llamadaData);
@@ -110,25 +83,14 @@ export default {
         if (data.fecha_hora) {
           const [fecha, horaCompleta] = data.fecha_hora.split(" ");
           const [hora, minutos] = horaCompleta.split(":");
-          const { horas, minutos: min, segundos } = this.formatDuracion(data.duracion);
 
           this.llamada = {
             ...data,
             dia: fecha,
             hora: `${hora}:${minutos}`,
-            horas,
-            minutos: min,
-            segundos,
           };
         }
       }
-    },
-
-    formatDuracion(duracionEnSegundos) {
-      const horas = Math.floor(duracionEnSegundos / 3600);
-      const minutos = Math.floor((duracionEnSegundos % 3600) / 60);
-      const segundos = duracionEnSegundos % 60;
-      return { horas, minutos, segundos };
     },
 
     resetLlamada() {
@@ -136,13 +98,10 @@ export default {
         dia: "",
         hora: "",
         operador_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
-        paciente_id: this.$route.query.paciente_id || "",
+        paciente: this.$route.query.paciente || "",
         descripcion: "",
         planificada: this.planificada ? true : false,
-        duracion: "",
-        horas: null,
-        minutos: null,
-        segundos: null,
+        duracion: null,
       };
       this.operador = JSON.parse(localStorage.getItem('operador'))?.nombre || '';
     },
@@ -173,13 +132,13 @@ export default {
 
       <div class="mb-3">
         <label for="paciente" class="form-label">Paciente:</label>
-        <Field as="select" name="paciente_id" v-model="llamada.paciente_id" class="form-select">
+        <Field as="select" name="paciente" v-model="llamada.paciente" class="form-select">
           <option value="" disabled>--- Escoge paciente ---</option>
           <option v-for="paciente in pacientes" :value="paciente.id" :key="paciente.id">
             {{ paciente.nombre }}
           </option>
         </Field>
-        <ErrorMessage name="paciente_id" class="text-danger" />
+        <ErrorMessage name="paciente" class="text-danger" />
       </div>
 
       <div class="mb-3">
@@ -195,22 +154,9 @@ export default {
       </div>
 
       <div class="mb-3">
-        <label for="duracion" class="form-label">Duración de la llamada:</label>
-        <div class="duration-fields">
-          <Field type="number" name="horas" v-model="llamada.horas" :placeholder="llamada.horas === null ? 'Horas' : ''"
-            min="0" class="form-control" />
-          <span>:</span>
-          <Field type="number" name="minutos" v-model="llamada.minutos"
-            :placeholder="llamada.minutos === null ? 'Minutos' : ''" min="0" max="59" class="form-control" />
-          <span>:</span>
-          <Field type="number" name="segundos" v-model="llamada.segundos"
-            :placeholder="llamada.segundos === null ? 'Segundos' : ''" min="0" max="59" class="form-control" />
-        </div>
-        <ErrorMessage name="horas" class="text-danger" />
-        <br>
-        <ErrorMessage name="minutos" class="text-danger" />
-        <br>
-        <ErrorMessage name="segundos" class="text-danger" />
+        <label for="duracion" class="form-label">Duración de la llamada (en segundos):</label>
+        <Field type="number" name="duracion" v-model="llamada.duracion" class="form-control" />
+        <ErrorMessage name="duracion" class="text-danger" />
       </div>
 
       <div class="mb-3">
@@ -228,14 +174,3 @@ export default {
     </Form>
   </div>
 </template>
-
-<style scoped>
-.duration-fields {
-  display: flex;
-  align-items: center;
-}
-
-.duration-fields span {
-  margin: 0 5px;
-}
-</style>
