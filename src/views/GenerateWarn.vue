@@ -32,7 +32,7 @@ export default {
         const now = new Date();
         return {
             form: {
-                operador_id: null,
+                user_id: null,
                 operador_nombre: "",
                 tipo: this.$route.query.tipo === "alarma" ? "alarma" : "",
                 categoria: this.$route.query.tipo === "alarma" ? null : "",
@@ -53,7 +53,7 @@ export default {
         
         async submitForm() {
             const avisoData = {
-                operador_id: this.form.operador_id,
+                user_id: this.form.user_id,
                 tipo: this.form.tipo,
                 categoria: this.form.tipo === "alarma" ? null : this.form.categoria,
                 descripcion: this.form.descripcion,
@@ -96,7 +96,7 @@ export default {
     async mounted() {
         const operador = JSON.parse(localStorage.getItem("operador"));
         if (operador) {
-            this.form.operador_id = operador.id;
+            this.form.user_id = operador.id;
             this.form.operador_nombre = operador.nombre;
         }
         if (this.id) await this.cargarAviso();
