@@ -205,6 +205,26 @@ export const useDataStore = defineStore("data", {
       }
     },
 
+    async editOutgoingCall(call) {
+      try {
+        const headers = this.getAuthHeaders();
+        if (!headers) return;
+        const response = await axios.put(
+          `${SERVER}/llamadas_salientes/${call.id}`,
+          call,
+          headers
+        );
+        const index = this.llamadas_salientes.findIndex(
+          (llamada) => llamada.id == call.id
+        );
+        if (index !== -1) {
+          this.llamadas_salientes[index] = response.data.data;
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
+
     async getLlamadaEntrante(id) {
       try {
         const headers = this.getAuthHeaders();

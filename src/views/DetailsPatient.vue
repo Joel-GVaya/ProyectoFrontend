@@ -25,7 +25,7 @@ export default {
     ...mapActions(useDataStore, ["getPacienteByID"]),
     
     editarLlamadaEntrante(id) {
-      this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente_id: this.paciente.id } });
+      this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente_id: this.id } });
     },
 
     editarLlamadaSaliente(id) {

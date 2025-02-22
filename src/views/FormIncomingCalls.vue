@@ -31,7 +31,7 @@ export default {
         .required("La hora de la llamada es obligatoria"),
       descripcion: yup.string().max(500, "Máximo 500 caracteres").nullable(),
       subtipo: yup.string().required("El subtipo de la llamada es obligatorio"),
-      paciente: yup.string().required("El paciente es obligatorio"),
+      paciente_id: yup.string().required("El paciente es obligatorio"),
       horas: yup
         .number()
         .min(0, "Las horas deben ser 0 o más")
@@ -91,6 +91,7 @@ export default {
         subtipo: this.llamada.subtipo,
         descripcion: this.llamada.descripcion,
         duracion: duracionTotal,
+        paciente_id: this.llamada.paciente,
       };
 
       delete llamadaData.dia;
@@ -98,6 +99,7 @@ export default {
       delete llamadaData.horas;
       delete llamadaData.minutos;
       delete llamadaData.segundos;
+      delete llamadaData.paciente;
 
       if (!this.id) {
         await this.registrarLlamadaEntrante(llamadaData);
@@ -181,7 +183,7 @@ export default {
       </div>
       <div class="form-group">
         <label for="paciente" class="form-label">Persona que realiza la llamada: </label>
-        <Field as="select" name="paciente" v-model="llamada.paciente" class="form-select">
+        <Field as="select" name="paciente_id" v-model="llamada.paciente" class="form-select">
           <option value="" disabled>--- Escoge paciente ---</option>
           <option v-for="paciente in pacientes" :value="paciente.id" :key="paciente.id">
             {{ paciente.nombre }}
@@ -255,8 +257,8 @@ export default {
       </div>
 
       <div class="form-actions">
-        <button type="submit" v-if="!id" class="btn btn-primary">Añadir</button>
-        <button type="submit" v-else class="btn btn-primary">Editar</button>
+        <button type="submit" @click="submitLlamada" v-if="!id" class="btn btn-primary">Añadir</button>
+        <button type="submit"  @click="submitLlamada" v-else class="btn btn-primary">Editar</button>
         <button type="button" v-if="!id" @click="resetForm" class="btn btn-secondary">Reset</button>
         <button type="button" v-else @click="cargarLlamada" class="btn btn-secondary">Reset datos</button>
       </div>
