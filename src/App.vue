@@ -15,9 +15,9 @@ export default {
   },
 
   mounted() {
+    this.populateZonas();
     this.populatePacientes();
     this.populateOperadores();
-    this.populateZonas();
     this.populateLlamadasSalientes();
     this.populateLlamadasEntrantes();
   }

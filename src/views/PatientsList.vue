@@ -22,9 +22,10 @@ export default {
     ...mapState(useDataStore, ["pacientes"]),
 
     pacientesFiltrados() {
-      return this.pacientes.filter((paciente) =>
-        paciente.nombre.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      return this.pacientes.filter((paciente) => {
+        const nombre = paciente.nombre || '';
+        return nombre.toLowerCase().includes(this.searchQuery.toLowerCase());
+      });
     },
 
     pacientesOrdenados() {
@@ -65,12 +66,7 @@ export default {
     <h1 class="text-center mb-4">Listado de Pacientes</h1>
 
     <div class="mb-3">
-      <input
-        type="text"
-        v-model="searchQuery"
-        class="form-control"
-        placeholder="Buscar paciente por nombre"
-      />
+      <input type="text" v-model="searchQuery" class="form-control" placeholder="Buscar paciente por nombre" />
     </div>
 
     <div class="table-responsive">
@@ -109,8 +105,10 @@ export default {
 }
 
 .table-responsive {
-  margin-left: 20px; /* Añadir margen izquierdo */
-  margin-right: 20px; /* Añadir margen derecho */
+  margin-left: 20px;
+  /* Añadir margen izquierdo */
+  margin-right: 20px;
+  /* Añadir margen derecho */
 }
 
 .table-bordered {

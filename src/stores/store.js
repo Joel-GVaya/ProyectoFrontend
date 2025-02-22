@@ -133,7 +133,7 @@ export const useDataStore = defineStore("data", {
         
         const response = await axios.post(`${SERVER}/llamadas_entrantes`, llamada_entrante, headers);
 
-        this.llamadas_entrantes.push(response.data);
+        this.llamadas_entrantes.push(response.data.data);
       } catch (error) {
         console.log(error);
       }
@@ -146,7 +146,7 @@ export const useDataStore = defineStore("data", {
         
         const response = await axios.post(`${SERVER}/llamadas_salientes`, llamada_saliente, headers);
 
-        this.llamadas_salientes.push(response.data);
+        this.llamadas_salientes.push(response.data.data);
       } catch (error) {
         console.log(error);
       }
@@ -180,7 +180,7 @@ export const useDataStore = defineStore("data", {
           (llamada) => llamada.id == call.id
         );
         if (index !== -1) {
-          this.llamadas_entrantes[index] = response.data;
+          this.llamadas_entrantes[index] = response.data.data;
         }
       } catch (error) {
         console.log(error.message);
@@ -266,7 +266,7 @@ export const useDataStore = defineStore("data", {
         const headers = this.getAuthHeaders();
         if (!headers) return;
         const reponse = await axios.post(`${SERVER}/pacientes`, paciente, headers);
-        this.pacientes.push(reponse.data);
+        this.pacientes.push(reponse.data.data);
       } catch (error) {
         console.log(error);
       }
@@ -279,7 +279,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.put(`${SERVER}/pacientes/${paciente.id}`, paciente, headers);
         const index = this.pacientes.findIndex((pac) => pac.id == paciente.id);
         if (index !== -1) {
-          this.pacientes[index] = response.data;
+          this.pacientes[index] = response.data.data;
         }
       } catch (error) {
         console.log(error);
@@ -364,7 +364,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.put(`${SERVER}/avisos/${aviso.id}`, aviso, headers);
         const index = this.avisos.findIndex(a => a.id == aviso.id);
         if (index !== -1) {
-          this.avisos[index] = response.data;
+          this.avisos[index] = response.data.data;
         }
       } catch (error) {
         console.log(error.message);

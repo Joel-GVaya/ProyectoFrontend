@@ -24,20 +24,20 @@ export default {
     return {
       form: {
         nombre: "",
-        fecha_nac: "", 
+        fecha_nac: "",
         DNI: "",
         num_sip: "",
         telefono: "",
         correo: "",
         direccion: "",
         ciudad: "",
-        cp: "", 
-        zona_id: "", 
+        cp: "",
+        zona_id: "",
         sit_personal: "",
         sit_sanitaria: "",
         sit_habitaculo: "",
         sit_economica: "",
-        autonomia: false, 
+        autonomia: false,
         persona_contacto: [{ nombre: "", apellido: "", telefono: "", relacion: "" }],
       },
 
@@ -48,13 +48,17 @@ export default {
           .string()
           .matches(/^\d{8}[A-Z]$/, "El DNI debe tener 8 números seguidos de una letra en mayúscula")
           .required("El DNI es obligatorio"),
-        num_sip: yup.string().matches(/^\d+$/, "Debe ser un número").required("El número SIP es obligatorio"),
+        num_sip: yup
+          .string()
+          .max(8, "El número SIP debe tener 8 dígitos")
+          .matches(/^\d+$/, "Debe ser un número válido")
+          .required("El número SIP es obligatorio"),
         telefono: yup.string().matches(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos").required("El teléfono es obligatorio"),
         correo: yup.string().email("Debe ser un correo válido").required("El correo es obligatorio"),
         direccion: yup.string().required("La dirección es obligatoria"),
         ciudad: yup.string().required("La ciudad es obligatoria"),
         cp: yup.string().matches(/^\d{5}$/, "Debe ser un código postal válido").required("El código postal es obligatorio"),
-        zona: yup.string().required("La zona es obligatoria"),
+        zona_id: yup.string().required("La zona es obligatoria"),
         sit_personal: yup.string().required("Campo obligatorio"),
         sit_sanitaria: yup.string().required("Campo obligatorio"),
         sit_habitaculo: yup.string().required("Campo obligatorio"),
@@ -70,18 +74,22 @@ export default {
       }),
     };
   },
-  async mounted() {
+  mounted() {
     if (this.id) {
-      const paciente = await this.loadPatient(this.id);
-      if (paciente) {
-        this.form = JSON.parse(JSON.stringify(paciente));
-      }
+      this.loadPatient(this.id).then((paciente) => {
+        if (paciente) {
+          this.form = JSON.parse(JSON.stringify(paciente));
+
+          if (this.form.fecha_nac) {
+            const fecha = new Date(this.form.fecha_nac);
+            this.form.fecha_nac = fecha.toISOString().split("T")[0];
+          }
+
+          // Convertir autonomia de 0/1 a false/true
+          this.form.autonomia = this.form.autonomia === 1;
+        }
+      });
     }
-    const usuario = JSON.parse(localStorage.getItem("operador"));
-    if (!usuario) {
-      this.$router.push("/login");
-      return;
-  }
   },
 
   computed: {
@@ -89,45 +97,50 @@ export default {
 
     zonaNombre: {
       get() {
-        return this.getNomZonaById(this.form.zona) || "";
+        return this.getNomZonaById(this.form.zona_id) || "";
       },
       set(nombre) {
         const zonaEncontrada = this.zonas.find((zona) => zona.nombre === nombre);
-        this.form.zona = zonaEncontrada ? zonaEncontrada.id : "";
+        this.form.zona_id = zonaEncontrada ? Number(zonaEncontrada.id) : "";
       },
     },
+
   },
 
 
   methods: {
-    ...mapActions(useDataStore, ["loadPatient", "addPatient", "updatePatient"]),
+    ...mapActions(useDataStore, ["loadPatient", "addPatient", "updatePatient", "populatePacientes"]),
     async submitPatient() {
       const usuario = {
-        id: Number(this.id),
+        id: this.id ? Number(this.id) : null,
         nombre: this.form.nombre,
-        fecha_nac: this.form.fecha_nac,
+        fecha_nac: this.form.fecha_nac ? this.form.fecha_nac : null,
         DNI: this.form.DNI,
         num_sip: this.form.num_sip,
         telefono: this.form.telefono,
         correo: this.form.correo,
         direccion: this.form.direccion,
         ciudad: this.form.ciudad,
-        cp: Number(this.form.cp),
-        zona_id: Number(this.form.zona), 
+        cp: this.form.cp,
+        zona_id: this.form.zona_id ? Number(this.form.zona_id) : null,
         sit_personal: this.form.sit_personal,
         sit_sanitaria: this.form.sit_sanitaria,
         sit_habitaculo: this.form.sit_habitaculo,
         sit_economica: this.form.sit_economica,
-        autonomia: this.form.autonomia, 
-        persona_contacto: this.form.persona_contacto || "",
-      }
+        autonomia: this.form.autonomia,
+      };
+
       if (this.id) {
         await this.updatePatient(usuario);
       } else {
         await this.addPatient(usuario);
       }
-      this.$router.push("/")
+
+      await this.populatePacientes();
+
+      this.$router.push("/");
     },
+
     agregarPersonaContacto() {
       this.form.persona_contacto.push({ nombre: "", apellido: "", telefono: "", relacion: "" });
     },
@@ -169,7 +182,7 @@ export default {
           <div class="mb-3">
             <label class="form-label">Número de tarjeta sanitaria</label>
             <Field name="num_sip" v-model="form.num_sip" type="text" class="form-control"
-              placeholder="Ingrese el número de tarjeta sanitaria" />
+              placeholder="Ingrese el número de tarjeta sanitaria" maxlength="8"/>
             <ErrorMessage name="num_sip" class="text-danger small" />
           </div>
 
@@ -210,13 +223,13 @@ export default {
 
           <div class="mb-3">
             <label class="form-label">Zona</label>
-            <Field as="select" name="zona" v-model="zonaNombre" class="form-select">
+            <Field as="select" name="zona_id" v-model="zonaNombre" class="form-select">
               <option value="" disabled>Seleccione una opción</option>
               <option v-for="zona in zonas" :key="zona.id" :value="zona.nombre">
                 {{ zona.nombre }}
               </option>
             </Field>
-            <ErrorMessage name="zona" class="text-danger small" />
+            <ErrorMessage name="zona_id" class="text-danger small" />
           </div>
 
           <div class="mb-3">
