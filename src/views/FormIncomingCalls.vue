@@ -175,7 +175,7 @@ export default {
     <h3 v-else>Registrar llamada no urgente</h3>
     <Form id="llamadaForm" method="post" @submit="submitLlamada" :validation-schema="mySchema">
       <div class="mb-3">
-        <label for="operador" class="form-label">Operador:</label>
+        <label for="user_id" class="form-label">Operador:</label>
         <Field type="text" name="user_id" v-model="operador" class="form-control" disabled />
         <ErrorMessage name="user_id" class="text-danger" />
       </div>

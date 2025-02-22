@@ -29,7 +29,7 @@ export default {
     },
 
     editarLlamadaSaliente(id) {
-      this.$router.push({ name: "editOutgoingCall", params: { id: id } });
+      this.$router.push({ name: "editOutgoingCall", params: { id: id }, query: { paciente_id: this.id } });
     },
 
     formatFecha(fecha) {
@@ -195,7 +195,7 @@ export default {
                   <td>{{ llamada.fecha }}</td>
                   <td>{{ llamada.hora }}</td>
                   <td>{{ llamada.duracion }}</td>
-                  <td>{{ llamada.planificada ? "Sí" : "No" }}</td>
+                  <td>{{ llamada.planificado ? "Sí" : "No" }}</td>
                   <td>{{ llamada.descripcion || 'No hay observaciones' }}</td>
                   <td>
                     <button name="editar" class="btn btn-warning btn-sm me-2"
@@ -215,8 +215,8 @@ export default {
             <router-link :to="{
               name: 'registerOutgoingCall',
               query: {
-                planificada: false,
-                paciente_id: paciente.id
+                planificado: false,
+                paciente_id: this.paciente.id
               }
             }">
               Registrar llamada sin agendar

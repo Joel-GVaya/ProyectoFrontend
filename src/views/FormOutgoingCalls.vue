@@ -21,7 +21,7 @@ export default {
   },
   data() {
     const mySchema = yup.object({
-      operador_id: yup.string().required("El operador es obligatorio"),
+      user_id: yup.string().required("El operador es obligatorio"),
       dia: yup
         .string()
         .matches(/^\d{4}-\d{2}-\d{2}$/, "Formato incorrecto, debe ser YYYY-MM-DD")
@@ -31,7 +31,7 @@ export default {
         .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato incorrecto, debe ser HH:MM")
         .required("La hora de la llamada es obligatoria"),
       descripcion: yup.string().max(500, "Máximo 500 caracteres").nullable(),
-      planificada: yup.string().required("El tipo de llamada es obligatorio"),
+      planificado: yup.string().required("El tipo de llamada es obligatorio"),
       paciente_id: yup.string().required("El paciente es obligatorio"),
       horas: yup
         .number()
@@ -62,10 +62,10 @@ export default {
       llamada: {
         dia: "",
         hora: "",
-        operador_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
-        paciente: this.$route.query.paciente || "",
+        user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
+        paciente_id: this.$route.query.paciente_id || "",
         descripcion: "",
-        planificada: this.planificada ? true : false,
+        planificado: this.planificado ? true : false,
         duracion: "",
         horas: null,
         minutos: null,
@@ -87,7 +87,7 @@ export default {
         fecha_hora: fechaHora,
         duracion: duracionTotal,
         descripcion: this.llamada.descripcion || "Sin descripción",
-        paciente_id: this.llamada.paciente,
+        paciente_id: this.llamada.paciente_id,
       };
 
       delete llamadaData.dia;
@@ -95,7 +95,6 @@ export default {
       delete llamadaData.horas;
       delete llamadaData.minutos;
       delete llamadaData.segundos;
-      delete llamadaData.paciente;
 
       if (!this.id) {
         await this.registrarLlamadaSaliente(llamadaData);
@@ -137,10 +136,10 @@ export default {
       this.llamada = {
         dia: "",
         hora: "",
-        operador_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
-        paciente: this.$route.query.paciente || "",
+        user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
+        paciente_id: this.$route.query.paciente_id || "",
         descripcion: "",
-        planificada: this.planificada ? true : false,
+        planificado: this.planificado ? true : false,
         duracion: "",
         horas: null,
         minutos: null,
@@ -156,7 +155,7 @@ export default {
       this.llamada.hora = now.toTimeString().split(" ")[0].slice(0, 5);
       this.operador = JSON.parse(localStorage.getItem('operador')).nombre;
     } else {
-      this.operador = this.getNomOperadorById(this.llamada.operador_id);
+      this.operador = this.getNomOperadorById(this.llamada.user_id);
       await this.cargarLlamada();
     }
   }
@@ -168,20 +167,20 @@ export default {
     <h3 class="mb-4">Registrar llamada saliente</h3>
     <Form id="llamadaForm" method="post" @submit="submitLlamada" :validation-schema="mySchema">
       <div class="mb-3">
-        <label for="operador" class="form-label">Operador:</label>
-        <Field type="text" name="operador_id" v-model="operador" class="form-control" disabled />
-        <ErrorMessage name="operador_id" class="text-danger" />
+        <label for="user_id" class="form-label">Operador:</label>
+        <Field type="text" name="user_id" v-model="operador" class="form-control" disabled />
+        <ErrorMessage name="user_id" class="text-danger" />
       </div>
 
       <div class="mb-3">
-        <label for="paciente" class="form-label">Paciente:</label>
-        <Field as="select" name="paciente_id" v-model="llamada.paciente" class="form-select">
+        <label for="paciente_id" class="form-label">Paciente:</label>
+        <Field as="select" name="paciente_id" v-model="llamada.paciente_id" class="form-select">
           <option value="" disabled>--- Escoge paciente ---</option>
           <option v-for="paciente in pacientes" :value="paciente.id" :key="paciente.id">
             {{ paciente.nombre }}
           </option>
         </Field>
-        <ErrorMessage name="paciente" class="text-danger" />
+        <ErrorMessage name="paciente_id" class="text-danger" />
       </div>
 
       <div class="mb-3">
@@ -199,14 +198,11 @@ export default {
       <div class="mb-3">
         <label for="duracion" class="form-label">Duración de la llamada:</label>
         <div class="duration-fields">
-          <Field type="number" name="horas" v-model="llamada.horas" :placeholder="llamada.horas === null ? 'Horas' : ''"
-            min="0" class="form-control" />
+          <Field type="number" name="horas" v-model="llamada.horas" :placeholder="llamada.horas === null ? 'Horas' : ''" min="0" class="form-control" />
           <span>:</span>
-          <Field type="number" name="minutos" v-model="llamada.minutos"
-            :placeholder="llamada.minutos === null ? 'Minutos' : ''" min="0" max="59" class="form-control" />
+          <Field type="number" name="minutos" v-model="llamada.minutos" :placeholder="llamada.minutos === null ? 'Minutos' : ''" min="0" max="59" class="form-control" />
           <span>:</span>
-          <Field type="number" name="segundos" v-model="llamada.segundos"
-            :placeholder="llamada.segundos === null ? 'Segundos' : ''" min="0" max="59" class="form-control" />
+          <Field type="number" name="segundos" v-model="llamada.segundos" :placeholder="llamada.segundos === null ? 'Segundos' : ''" min="0" max="59" class="form-control" />
         </div>
         <ErrorMessage name="horas" class="text-danger" />
         <br>

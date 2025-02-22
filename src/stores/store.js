@@ -34,7 +34,7 @@ export const useDataStore = defineStore("data", {
     },
     getLlamadasSalientesByPacienteId: (state) => (id) => {
       return state.llamadas_salientes.filter(
-        (llamada) => llamada.paciente == id
+        (llamada) => llamada.paciente_id == id
       );
     },
     getNomOperadorById: (state) => (id) => {
