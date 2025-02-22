@@ -343,7 +343,7 @@ export const useDataStore = defineStore("data", {
         const headers = this.getAuthHeaders();
         if (!headers) return;
         const response = await axios.get(
-          `${SERVER}/llamadas_entrantes?users=${user_id}`,
+          `${SERVER}/users/${user_id}/llamadas_entrantes`,
           headers
         );
         return response.data.data;

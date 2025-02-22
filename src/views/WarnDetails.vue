@@ -7,24 +7,21 @@ export default {
 
   data() {
     return {
-      aviso: {},
-      operador: {},
-      paciente: {},
+      aviso: null,
     };
   },
 
   async mounted() {
     this.aviso = await this.getAvisoByID(this.id);
-    this.operador = await this.getOperadorByID(this.aviso.operador_id);
-    this.paciente = await this.getPacienteByID(this.aviso.paciente_id);
   },
 
   methods: {
-    ...mapActions(useDataStore, ["getAvisoByID", "getOperadorByID", "getPacienteByID", "deleteAvisoByID"]),
+    ...mapActions(useDataStore, ["getAvisoByID", "deleteAvisoByID"]),
     async deleteAviso(id) {
       await this.deleteAvisoByID(id);
       this.$router.push({ name: "home" });
     },
+
     formatFecha(fechaISO) {
       const separador = fechaISO.includes("T") ? "T" : " ";
       const [fecha, hora] = fechaISO.split(separador);
@@ -62,21 +59,26 @@ export default {
 </script>
 
 <template>
-  <div class="warn-details">
-    <h1>Detalles del Aviso</h1>
-    <div class="detail"><strong>Fecha de Inicio:</strong> {{ fechaFormateada }}</div>
-    <div class="detail"><strong>Fecha de Inicio:</strong> {{ horaFormateada }}</div>
-    <div class="detail"><strong>Operador:</strong> {{ operador.nombre }}</div>
-    <div class="detail" v-if="paciente !== null"><strong>Paciente:</strong> {{ paciente.nombre }}</div>
-    <div class="detail"><strong>Tipo:</strong> {{ aviso.tipo }}</div>
-    <div class="detail"><strong>Categoría:</strong> {{ aviso.categoria }}</div>
-    <div class="detail"><strong>Descripción:</strong> {{ aviso.descripcion }}</div>
-    <div class="detail"><strong>Frecuencia:</strong> {{ frecuenciaFormateada }}</div>
-    <div class="detail" v-if="aviso.zona_afectada !== null"><strong>Zona Afectada:</strong> {{ aviso.zona_afectada }}
+  <div v-if="aviso">
+    <div class="warn-details">
+      <h1>Detalles del Aviso</h1>
+      <div class="detail"><strong>Fecha de inicio:</strong> {{ fechaFormateada }}</div>
+      <div class="detail"><strong>Hora de inicio:</strong> {{ horaFormateada }}</div>
+      <div class="detail" v-if="aviso.operador"><strong>Operador:</strong> {{ aviso.operador.nombre }}</div>
+      <div class="detail" v-if="aviso.paciente"><strong>Paciente:</strong> {{ aviso.paciente.nombre }}</div>
+      <div class="detail"><strong>Tipo:</strong> {{ aviso.tipo }}</div>
+      <div class="detail"><strong>Categoría:</strong> {{ aviso.categoria }}</div>
+      <div class="detail"><strong>Descripción:</strong> {{ aviso.descripcion }}</div>
+      <div class="detail"><strong>Frecuencia:</strong> {{ frecuenciaFormateada }}</div>
+      <div class="detail" v-if="aviso.zona !== null"><strong>Zona Afectada:</strong> {{ aviso.zona.nombre }}
+      </div>
+    </div>
+    <div>
+      <button class="edit-button" @click="deleteAviso(aviso.id)">Eliminar</button>
     </div>
   </div>
-  <div>
-    <button class="edit-button" @click="deleteAviso(aviso.id)">Eliminar</button>
+  <div v-else>
+    <p>Cargando...</p>
   </div>
 </template>
 

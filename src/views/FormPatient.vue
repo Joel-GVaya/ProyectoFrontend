@@ -75,6 +75,11 @@ export default {
     };
   },
   mounted() {
+    const usuario = JSON.parse(localStorage.getItem("operador"));
+    if (!usuario) {
+      this.$router.push("/login");
+      return;
+    }
     if (this.id) {
       this.loadPatient(this.id).then((paciente) => {
         if (paciente) {

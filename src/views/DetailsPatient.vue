@@ -51,30 +51,44 @@ export default {
     },
 
     async cargarPaciente() {
-      this.paciente = await this.getPacienteByID(this.id);
+      try {
+        console.log("Cargando paciente con ID:", this.id);
+        this.paciente = await this.getPacienteByID(this.id);
 
-      this.llamadasEntrantes = this.getLlamadasEntrantesByPacienteId(this.id).map(
-        (llamada) => ({
-          ...llamada,
-          fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
-          hora: llamada.fecha_hora.split(" ")[1].slice(0, 5),
-          duracion: this.formatDuracion(llamada.duracion),
-        })
-      );
+        this.llamadasEntrantes = this.getLlamadasEntrantesByPacienteId(this.id).map(
+          (llamada) => ({
+            ...llamada,
+            fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
+            hora: llamada.fecha_hora.split(" ")[1].slice(0, 5),
+            duracion: this.formatDuracion(llamada.duracion),
+          })
+        );
 
-      this.llamadasSalientes = this.getLlamadasSalientesByPacienteId(this.id).map(
-        (llamada) => ({
-          ...llamada,
-          fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
-          hora: llamada.fecha_hora.split(" ")[1].slice(0, 5),
-          duracion: this.formatDuracion(llamada.duracion),
-        })
-      );
+        this.llamadasSalientes = this.getLlamadasSalientesByPacienteId(this.id).map(
+          (llamada) => ({
+            ...llamada,
+            fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
+            hora: llamada.fecha_hora.split(" ")[1].slice(0, 5),
+            duracion: this.formatDuracion(llamada.duracion),
+          })
+        );
+      } catch (error) {
+        console.error("Error al cargar el paciente:", error);
+      }
     },
   },
 
   mounted() {
     this.cargarPaciente();
+  },
+
+  watch: {
+    id: {
+      immediate: true,
+      handler() {
+        this.cargarPaciente();
+      },
+    },
   },
 };
 </script>
