@@ -17,9 +17,11 @@ export default {
 
   methods: {
     ...mapActions(useDataStore, ["getAvisoByID", "deleteAvisoByID"]),
-    async deleteAviso(id) {
-      await this.deleteAvisoByID(id);
-      this.$router.push({ name: "home" });
+    async editAviso(id) {
+      this.$router.push({ 
+        name: 'generateWarn', 
+        query: { tipo: 'id', id: this.aviso.id } 
+      });
     },
 
     formatFecha(fechaISO) {
@@ -74,7 +76,7 @@ export default {
       </div>
     </div>
     <div>
-      <button class="edit-button" @click="deleteAviso(aviso.id)">Eliminar</button>
+      <button class="edit-button" @click="editAviso(aviso.id)">Editar</button>
     </div>
   </div>
   <div v-else>
