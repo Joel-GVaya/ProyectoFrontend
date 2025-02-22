@@ -208,10 +208,10 @@ export default {
             <option value="Notificar ausencias o retornos">Notificar ausencias o retornos</option>
             <option value="Modificar datos personales">Modificar datos personales</option>
             <option value="Llamadas accidentales">Llamadas accidentales</option>
-            <option value="Solicitud de información">Solicitud de información</option>
+            <option value="Solicitud de informacion">Solicitud de información</option>
             <option value="Sugerencias, quejas o reclamaciones">Sugerencias, quejas o reclamaciones</option>
             <option value="Llamadas sociales">Llamadas sociales</option>
-            <option value="Registrar citas médicas">Registrar citas médicas</option>
+            <option value="Registrar citas medicas">Registrar citas médicas</option>
             <option value="Otro tipo de llamada">Otro tipo de llamada...</option>
           </template>
 
