@@ -22,7 +22,7 @@ export default {
   },
   data() {
     const mySchema = yup.object({
-      operador_id: yup.string().required("El operador es obligatorio"),
+      user_id: yup.string().required("El operador es obligatorio"),
       dia: yup
         .string()
         .matches(/^\d{4}-\d{2}-\d{2}$/, "Formato incorrecto, debe ser YYYY-MM-DD")
@@ -63,7 +63,7 @@ export default {
       llamada: {
         dia: "",
         hora: "",
-        operador_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
+        user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
         paciente_id: this.$route.query.paciente_id || "",
         descripcion: "",
         subtipo: "",
@@ -85,10 +85,14 @@ export default {
       const duracionTotal = (this.llamada.horas * 60 + this.llamada.minutos) * 60 + this.llamada.segundos;
 
       const llamadaData = {
-        ...this.llamada,
+        id: Number(this.id),
         fecha_hora: fechaHora,
+        user_id: Number(this.llamada.user_id),
+        paciente_id: Number(this.llamada.paciente_id),
+        tipo: this.llamada.emergencia ? "emergencia" : "no_urgente",
+        subtipo: this.llamada.subtipo,
+        descripcion: this.llamada.descripcion,
         duracion: duracionTotal,
-        descripcion: this.llamada.descripcion || "Sin descripción",
       };
 
       delete llamadaData.dia;
@@ -121,7 +125,7 @@ export default {
             horas,
             minutos: min,
             segundos,
-            emergencia: data.emergencia,
+            emergencia: data.emergencia === "emergencia",
           };
         }
       }
@@ -138,7 +142,7 @@ export default {
       this.llamada = {
         dia: new Date().toISOString().split("T")[0],
         hora: new Date().toTimeString().split(" ")[0].slice(0, 5),
-        operador_id: JSON.parse(localStorage.getItem("operador"))?.id || null,
+        user_id: JSON.parse(localStorage.getItem("operador"))?.id || null,
         paciente_id: this.$route.query.paciente_id || "",
         descripcion: "",
         subtipo: "",
@@ -160,7 +164,7 @@ export default {
       this.operador = JSON.parse(localStorage.getItem('operador')).nombre;
       this.llamada.emergencia = this.$route.query.emergencia === "true";
     } else {
-      this.operador = this.getNomOperadorById(this.llamada.operador_id);
+      this.operador = this.getNomOperadorById(this.llamada.user_id);
       await this.cargarLlamada();
     }
   }
@@ -174,8 +178,8 @@ export default {
     <Form id="llamadaForm" method="post" @submit="submitLlamada" :validation-schema="mySchema">
       <div class="mb-3">
         <label for="operador" class="form-label">Operador:</label>
-        <Field type="text" name="operador_id" v-model="operador" class="form-control" disabled />
-        <ErrorMessage name="operador_id" class="text-danger" />
+        <Field type="text" name="user_id" v-model="operador" class="form-control" disabled />
+        <ErrorMessage name="user_id" class="text-danger" />
       </div>
       <div class="form-group">
         <label for="paciente" class="form-label">Persona que realiza la llamada: </label>

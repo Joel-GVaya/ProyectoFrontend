@@ -10,7 +10,7 @@ export const useDataStore = defineStore("data", {
       llamadas_entrantes: [],
       llamadas_salientes: [],
       operadores: [],
-      zonas: []
+      zonas: [],
     };
   },
 
@@ -25,11 +25,11 @@ export const useDataStore = defineStore("data", {
       return state.pacientes.filter((paciente) => paciente.zona == zona);
     },
     getNomZonaById: (state) => (id) => {
-      return state.zonas.find((zona) => zona.id == id)?.nombre
+      return state.zonas.find((zona) => zona.id == id)?.nombre;
     },
     getLlamadasEntrantesByPacienteId: (state) => (id) => {
       return state.llamadas_entrantes.filter(
-        (llamada) => llamada.paciente ==  id
+        (llamada) => llamada.paciente == id
       );
     },
     getLlamadasSalientesByPacienteId: (state) => (id) => {
@@ -49,7 +49,7 @@ export const useDataStore = defineStore("data", {
         console.error("No hay token disponible");
         return null;
       }
-      return { headers: { "Authorization": `Bearer ${token}` } };
+      return { headers: { Authorization: `Bearer ${token}` } };
     },
 
     async login(correo, contrasena) {
@@ -58,10 +58,13 @@ export const useDataStore = defineStore("data", {
           correo: correo,
           password: contrasena,
         });
-    
+
         if (response.data) {
           localStorage.setItem("operador", JSON.stringify(response.data.data));
-          localStorage.setItem("token", JSON.stringify(response.data.data.token));
+          localStorage.setItem(
+            "token",
+            JSON.stringify(response.data.data.token)
+          );
           return response.data.data;
         } else {
           return null;
@@ -71,13 +74,16 @@ export const useDataStore = defineStore("data", {
         return null;
       }
     },
-    
+
     async populateLlamadasSalientes() {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
 
-        const response = await axios.get(`${SERVER}/llamadas_salientes`, headers);
+        const response = await axios.get(
+          `${SERVER}/llamadas_salientes`,
+          headers
+        );
         this.llamadas_salientes = response.data.data;
       } catch (error) {
         console.log(error);
@@ -87,10 +93,13 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.get(`${SERVER}/llamadas_entrantes`, headers);
+        const response = await axios.get(
+          `${SERVER}/llamadas_entrantes`,
+          headers
+        );
         this.llamadas_entrantes = response.data.data;
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
     async populateZonas() {
@@ -100,7 +109,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/zonas`, headers);
         this.zonas = response.data.data;
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
 
@@ -111,10 +120,10 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/operadores`, headers);
         this.operadores = response.data.data;
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
-    async populatePacientes() { 
+    async populatePacientes() {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
@@ -130,8 +139,12 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        
-        const response = await axios.post(`${SERVER}/llamadas_entrantes`, llamada_entrante, headers);
+
+        const response = await axios.post(
+          `${SERVER}/llamadas_entrantes`,
+          llamada_entrante,
+          headers
+        );
 
         this.llamadas_entrantes.push(response.data.data);
       } catch (error) {
@@ -143,8 +156,12 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        
-        const response = await axios.post(`${SERVER}/llamadas_salientes`, llamada_saliente, headers);
+
+        const response = await axios.post(
+          `${SERVER}/llamadas_salientes`,
+          llamada_saliente,
+          headers
+        );
 
         this.llamadas_salientes.push(response.data.data);
       } catch (error) {
@@ -164,7 +181,7 @@ export const useDataStore = defineStore("data", {
           this.llamadas_entrantes.splice(index, 1);
         }
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
 
@@ -174,7 +191,8 @@ export const useDataStore = defineStore("data", {
         if (!headers) return;
         const response = await axios.put(
           `${SERVER}/llamadas_entrantes/${call.id}`,
-          call, headers
+          call,
+          headers
         );
         const index = this.llamadas_entrantes.findIndex(
           (llamada) => llamada.id == call.id
@@ -186,27 +204,33 @@ export const useDataStore = defineStore("data", {
         console.log(error.message);
       }
     },
-    
+
     async getLlamadaEntrante(id) {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.get(`${SERVER}/llamadas_entrantes/${id}`, headers);
+        const response = await axios.get(
+          `${SERVER}/llamadas_entrantes/${id}`,
+          headers
+        );
         return response.data.data;
       } catch (error) {
-        console.log(error)
-        return
+        console.log(error);
+        return;
       }
     },
     async getLlamadaSaliente(id) {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.get(`${SERVER}/llamadas_salientes/${id}`, headers);
+        const response = await axios.get(
+          `${SERVER}/llamadas_salientes/${id}`,
+          headers
+        );
         return response.data.data;
       } catch (error) {
-        console.log(error)
-        return
+        console.log(error);
+        return;
       }
     },
 
@@ -239,7 +263,7 @@ export const useDataStore = defineStore("data", {
         if (confirm("¿Está seguro que desea dar de baja a este paciente?")) {
           const headers = this.getAuthHeaders();
           if (!headers) return;
-          await axios.delete(`${SERVER}/pacientes/${id}`, headers );
+          await axios.delete(`${SERVER}/pacientes/${id}`, headers);
           const index = this.pacientes.findIndex(
             (paciente) => paciente.id == id
           );
@@ -265,7 +289,11 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const reponse = await axios.post(`${SERVER}/pacientes`, paciente, headers);
+        const reponse = await axios.post(
+          `${SERVER}/pacientes`,
+          paciente,
+          headers
+        );
         this.pacientes.push(reponse.data.data);
       } catch (error) {
         console.log(error);
@@ -276,7 +304,11 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.put(`${SERVER}/pacientes/${paciente.id}`, paciente, headers);
+        const response = await axios.put(
+          `${SERVER}/pacientes/${paciente.id}`,
+          paciente,
+          headers
+        );
         const index = this.pacientes.findIndex((pac) => pac.id == paciente.id);
         if (index !== -1) {
           this.pacientes[index] = response.data.data;
@@ -290,7 +322,10 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.get(`${SERVER}/llamadas_entrantes?users=${user_id}`, headers);
+        const response = await axios.get(
+          `${SERVER}/llamadas_entrantes?users=${user_id}`,
+          headers
+        );
         return response.data.data;
       } catch (error) {
         console.log(error);
@@ -302,7 +337,10 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.get(`${SERVER}/llamadas_entrantes?paciente_id=${paciente_id}`, headers);
+        const response = await axios.get(
+          `${SERVER}/llamadas_entrantes?paciente_id=${paciente_id}`,
+          headers
+        );
         return response.data.data;
       } catch (error) {
         console.log(error);
@@ -314,7 +352,10 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.get(`${SERVER}/llamadas_salientes?users=${user_id}`, headers);
+        const response = await axios.get(
+          `${SERVER}/llamadas_salientes?users=${user_id}`,
+          headers
+        );
         return response.data.data;
       } catch (error) {
         console.log(error);
@@ -350,7 +391,7 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.get(`${SERVER}/avisos/${id}`,  headers);
+        const response = await axios.get(`${SERVER}/avisos/${id}`, headers);
         return response.data.data;
       } catch (error) {
         console.log(`Error al obtener el aviso con id: ${id}`, error);
@@ -361,8 +402,12 @@ export const useDataStore = defineStore("data", {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
-        const response = await axios.put(`${SERVER}/avisos/${aviso.id}`, aviso, headers);
-        const index = this.avisos.findIndex(a => a.id == aviso.id);
+        const response = await axios.put(
+          `${SERVER}/avisos/${aviso.id}`,
+          aviso,
+          headers
+        );
+        const index = this.avisos.findIndex((a) => a.id == aviso.id);
         if (index !== -1) {
           this.avisos[index] = response.data.data;
         }
