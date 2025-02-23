@@ -1,5 +1,6 @@
 <script>
-import { useDataStore } from '@/stores/store';
+import { mapState } from 'pinia';
+import { useDataStore } from '../stores/store';
 
 
 export default {
@@ -27,7 +28,7 @@ export default {
       weekdays: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
       llamadas: [],
       avisos: [],
-      zonaIdUsuario: null, // Añadir esta línea
+      zonaIdUsuario: null,
     };
   },
 
@@ -43,7 +44,7 @@ export default {
       this.$router.push("/login");
       return;
     }
-    this.zonaIdUsuario = usuario.zona_id; // Obtener la zona_id del usuario logueado
+    this.zonaIdUsuario = usuario.zona_id;
     this.updateData();
   },
 
@@ -58,7 +59,8 @@ export default {
       const month = this.currentDate.getMonth();
       let firstDay = new Date(year, month, 1).getDay();
       return firstDay === 0 ? 6 : firstDay - 1;
-    }
+    },
+     ...mapState(useDataStore, ['getNomPacienteById']),
   },
 
   methods: {
@@ -68,14 +70,6 @@ export default {
     nextMonth() {
       this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
     },
-    /*addEvent(day) {
-      const dateKey = `${this.currentDate.getFullYear()}-${String(this.currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const eventText = prompt('Ingrese el evento:');
-      if (eventText) {
-        if (!this.events[dateKey]) this.events[dateKey] = [];
-        this.events[dateKey].push(eventText);
-      }
-    },*/
     async getLlamadasOperador(operadorId) {
       const store = useDataStore();
       this.llamadas = await store.getLlamadasEntrantesOperador(operadorId);
@@ -96,7 +90,7 @@ export default {
     async getAvisos() {
       const store = useDataStore();
       this.avisos = await store.getAvisos();
-      this.avisos = this.avisos.filter(aviso => aviso.zona_id === this.zonaIdUsuario); // Filtrar avisos por zona_id
+      this.avisos = this.avisos.filter(aviso => aviso.zona_id === this.zonaIdUsuario); 
       this.mostrarAvisos();
     },
     mostrarAvisos() {
@@ -145,15 +139,13 @@ export default {
     },
     verDetalles(event) {
       if (event.hasOwnProperty('fecha_hora')) {
-        // Lógica para mostrar detalles de la llamada
         this.$router.push({ name: 'callsView', params: { id: event.id } });
       } else if (event.hasOwnProperty('fecha_inicio')) {
-        // Lógica para mostrar detalles del aviso
         this.$router.push({ name: 'warnDetails', params: { id: event.id } });
       }
     },
     updateData() {
-      this.events = {}; // Limpiar los eventos antes de actualizar los datos
+      this.events = {}; 
       if (this.operador !== undefined) {
         this.getLlamadasOperador(this.operador);
       } else if (this.paciente !== undefined) {
@@ -178,7 +170,7 @@ export default {
     </div>
     <div class="days">
       <div v-for="n in firstDayOfMonth" :key="'empty' + n" class="empty"></div>
-      <div v-for="day in daysInMonth" :key="day" class="day" @click="addEvent(day)"
+      <div v-for="day in daysInMonth" :key="day" class="day"
         :class="{
           'emergency-border': events[`${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`] && events[`${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`].some(event => event.emergencia),
           'non-emergency-border': events[`${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`] && events[`${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`].every(event => !event.emergencia),
@@ -191,7 +183,7 @@ export default {
             <li
               v-for="event in events[`${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`]"
               :key="event.id" @click.stop="verDetalles(event)">
-              {{ event.descripcion || 'sin descripción' }}
+              {{ event.subtipo || event.descripcion || 'Sin vista previa' }}
             </li>
           </ul>
         </div>

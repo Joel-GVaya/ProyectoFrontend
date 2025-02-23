@@ -49,7 +49,7 @@ export default {
     },
     computed: { ...mapState(useDataStore, ["zonas", "pacientes"]) },
     methods: {
-        ...mapActions(useDataStore, ["registrarAviso", "getAvisoByID", "editWarn"]),
+        ...mapActions(useDataStore, ["registrarAviso", "getAvisoByID", "editWarn", "populateZonas"]),
 
         async submitForm() {
             const avisoData = {
@@ -97,6 +97,7 @@ export default {
         },
     },
     async mounted() {
+        await this.populateZonas();
         const operador = JSON.parse(localStorage.getItem("operador"));
         if (operador) {
             this.form.user_id = operador.id;

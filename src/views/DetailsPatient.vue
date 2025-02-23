@@ -18,6 +18,7 @@ export default {
       "getNomZonaById",
       "getLlamadasSalientesByPacienteId",
       "getLlamadasEntrantesByPacienteId",
+      "populateZonas",
     ]),
   },
   
@@ -77,8 +78,9 @@ export default {
     },
   },
 
-  mounted() {
-    this.cargarPaciente();
+  async mounted() {
+    await this.cargarPaciente();
+    await this.populateZonas();
   },
 
   watch: {
