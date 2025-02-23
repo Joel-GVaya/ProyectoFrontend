@@ -1,22 +1,36 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "http://localhost:8000/api"; 
 
 export const loginWithGoogle = async () => {
-    try {
-        const { data } = await axios.get(API_URL);
-        window.location.href = data.url; // Redirigeix a Google
-    } catch (error) {
-        console.error("Error iniciant sessió amb Google:", error);
-    }
-};
+  const popup = window.open(
+    `${API_URL}/login/google`,
+    "googleAuthPopup",
+    "width=500,height=600"
+  );
 
-export const handleGoogleCallback = async (code) => {
+  if (!popup) {
+    alert("Por favor, permite las ventanas emergentes para continuar.");
+    return;
+  }
+
+  const interval = setInterval(async () => {
     try {
-        const { data } = await axios.get(`http://localhost:8000/api/auth/google/callback?code=${code}`);
-        localStorage.setItem("token", data.token);
-        return data.user;
+      if (!popup || popup.closed) {
+        clearInterval(interval);
+        return;
+      }
+
+      const response = await axios.get(`${API_URL}/user`, { withCredentials: true });
+
+      if (response.data.user) {
+        clearInterval(interval);
+        popup.close();
+        console.log("Usuario autenticado:", response.data.user);
+        return response.data.user;
+      }
     } catch (error) {
-        console.error("Error al rebre la resposta de Google:", error);
+      console.log("Esperando autenticación...");
     }
+  }, 1000);
 };
