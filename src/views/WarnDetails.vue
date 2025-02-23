@@ -1,6 +1,6 @@
 <script>
 import { useDataStore } from "../stores/store";
-import { mapActions } from "pinia";
+import { mapActions, mapState } from "pinia";
 
 export default {
   props: ["id"],
@@ -37,6 +37,7 @@ export default {
   },
 
   computed: {
+    ...mapState(useDataStore, ["getNomZonaById"]),
     frecuenciaFormateada() {
       if (this.aviso.frecuencia && this.aviso.frecuencia.startsWith("periodico")) {
         const dias = this.aviso.frecuencia.split('-')[1];
@@ -69,10 +70,10 @@ export default {
       <div class="detail" v-if="aviso.operador"><strong>Operador:</strong> {{ aviso.operador.nombre }}</div>
       <div class="detail" v-if="aviso.paciente"><strong>Paciente:</strong> {{ aviso.paciente.nombre }}</div>
       <div class="detail"><strong>Tipo:</strong> {{ aviso.tipo }}</div>
-      <div class="detail"><strong>Categoría:</strong> {{ aviso.categoria }}</div>
+      <div class="detail" v-if="aviso.categoria"><strong>Categoría:</strong> {{ aviso.categoria }}</div>
       <div class="detail"><strong>Descripción:</strong> {{ aviso.descripcion }}</div>
       <div class="detail"><strong>Frecuencia:</strong> {{ frecuenciaFormateada }}</div>
-      <div class="detail" v-if="aviso.zona !== null"><strong>Zona Afectada:</strong> {{ aviso.zona.nombre }}
+      <div class="detail" v-if="aviso.zona !== null"><strong>Zona Afectada:</strong> {{ getNomZonaById(aviso.zona_id) }}
       </div>
     </div>
     <div>

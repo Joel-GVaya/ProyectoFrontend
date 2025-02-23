@@ -19,7 +19,7 @@ export default {
                 is: "periodico",
                 then: (schema) => schema.required("Debe especificar cada cuántos días").min(1, "Debe ser al menos 1 día"),
             }),
-            zona_afectada: yup.number().nullable().when("tipo", {
+            zona_id: yup.number().nullable().when("tipo", {
                 is: "alarma",
                 then: (schema) => schema.required("La zona afectada es obligatoria"),
             }),
@@ -41,7 +41,7 @@ export default {
                 hora: now.toTimeString().slice(0, 5), 
                 frecuencia: "",
                 dias_periodicos: null,
-                zona_afectada: null,
+                zona_id: null,
                 paciente_id: this.$route.query.paciente_id || null,
             },
             schema,
@@ -61,7 +61,7 @@ export default {
                 frecuencia: this.form.frecuencia === "periodico" && this.form.dias_periodicos
                     ? `periodico-${this.form.dias_periodicos}`
                     : this.form.frecuencia,
-                zona_afectada: this.form.tipo === "alarma" ? this.form.zona_afectada : null,
+                zona_id: this.form.tipo === "alarma" ? this.form.zona_id : null,
                 paciente_id: this.form.tipo !== "alarma" ? this.form.paciente_id : null,
             };
             
@@ -88,7 +88,7 @@ export default {
                 hora: hora.slice(0, 5),
                 frecuencia: match ? "periodico" : aviso.frecuencia,
                 dias_periodicos: match ? parseInt(match[1]) : null,
-                zona_afectada: aviso.tipo === "alarma" ? aviso.zona_afectada : null,
+                zona_id: aviso.tipo === "alarma" ? aviso.zona_id : null,
                 paciente_id: aviso.tipo !== "alarma" ? aviso.paciente_id : null,
             };
         },
@@ -183,14 +183,14 @@ export default {
             </div>
 
             <div class="mb-3" v-if="form.tipo === 'alarma'">
-                <label for="zona_afectada" class="form-label">Zona Afectada:</label>
-                <Field as="select" name="zona_afectada" v-model="form.zona_afectada" class="form-select">
+                <label for="zona_id" class="form-label">Zona Afectada:</label>
+                <Field as="select" name="zona_id" v-model="form.zona_id" class="form-select">
                     <option value="" disabled>--- Selecciona zona ---</option>
                     <option v-for="zona in zonas" :value="zona.id" :key="zona.id">
                         {{ zona.nombre }}
                     </option>
                 </Field>
-                <ErrorMessage name="zona_afectada" class="text-danger" />
+                <ErrorMessage name="zona_id" class="text-danger" />
             </div>
 
             <div class="mb-3" v-if="form.tipo !== 'alarma'">
