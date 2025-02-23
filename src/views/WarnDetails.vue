@@ -18,9 +18,12 @@ export default {
   methods: {
     ...mapActions(useDataStore, ["getAvisoByID", "deleteAvisoByID"]),
     async editAviso(id) {
-      this.$router.push({ 
-        name: 'generateWarn', 
-        query: { tipo: 'id', id: this.aviso.id } 
+      this.$router.push({
+        name: 'editWarn',
+        params: { id: id },
+        query: {
+          tipo: this.aviso.tipo,
+        }
       });
     },
 
@@ -73,7 +76,8 @@ export default {
       <div class="detail" v-if="aviso.categoria"><strong>Categoría:</strong> {{ aviso.categoria }}</div>
       <div class="detail"><strong>Descripción:</strong> {{ aviso.descripcion }}</div>
       <div class="detail"><strong>Frecuencia:</strong> {{ frecuenciaFormateada }}</div>
-      <div class="detail" v-if="aviso.zona !== null"><strong>Zona Afectada:</strong> {{ getNomZonaById(aviso.zona_id) }}
+      <div class="detail" v-if="aviso.zona_id !== null"><strong>Zona Afectada:</strong> {{ getNomZonaById(aviso.zona_id)
+      }}
       </div>
     </div>
     <div>

@@ -2,11 +2,11 @@
 import { mapActions, mapState } from "pinia";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
-import { useDataStore } from "@/stores/store";
+import { useDataStore } from "../stores/store";
 
 export default {
     components: { Form, Field, ErrorMessage },
-    props: { id: String },
+    props: ["id"],
     data() {
         const schema = yup.object({
             tipo: yup.string().required("El tipo es obligatorio"),
@@ -37,8 +37,8 @@ export default {
                 tipo: this.$route.query.tipo === "alarma" ? "alarma" : "",
                 categoria: this.$route.query.tipo === "alarma" ? null : "",
                 descripcion: "",
-                fecha: now.toISOString().split("T")[0], 
-                hora: now.toTimeString().slice(0, 5), 
+                fecha: now.toISOString().split("T")[0],
+                hora: now.toTimeString().slice(0, 5),
                 frecuencia: "",
                 dias_periodicos: null,
                 zona_id: null,
@@ -49,8 +49,8 @@ export default {
     },
     computed: { ...mapState(useDataStore, ["zonas", "pacientes"]) },
     methods: {
-        ...mapActions(useDataStore, ["registrarAviso", "getAvisoById", "editWarn"]),
-        
+        ...mapActions(useDataStore, ["registrarAviso", "getAvisoByID", "editWarn"]),
+
         async submitForm() {
             const avisoData = {
                 user_id: this.form.user_id,
@@ -64,7 +64,7 @@ export default {
                 zona_id: this.form.tipo === "alarma" ? this.form.zona_id : null,
                 paciente_id: this.form.tipo !== "alarma" ? this.form.paciente_id : null,
             };
-            
+
             if (this.id) {
                 await this.editWarn(avisoData);
             } else {
@@ -76,15 +76,18 @@ export default {
 
         async cargarAviso() {
             if (!this.id) return;
-            const aviso = await this.getAvisoById(this.id);
+            const aviso = await this.getAvisoByID(this.id);
             if (!aviso) return;
 
-            const [fecha, hora] = aviso.fecha_inicio.split("T");
+            const [fecha, hora] = aviso.fecha_inicio.includes("T")
+                ? aviso.fecha_inicio.split("T")
+                : aviso.fecha_inicio.split(" ");
             const match = aviso.frecuencia.match(/periodico-(\d+)/);
 
             this.form = {
                 ...aviso,
                 fecha,
+                categoria: aviso.tipo === "alarma" ? null : aviso.categoria,
                 hora: hora.slice(0, 5),
                 frecuencia: match ? "periodico" : aviso.frecuencia,
                 dias_periodicos: match ? parseInt(match[1]) : null,
@@ -104,9 +107,9 @@ export default {
 
         const usuario = JSON.parse(localStorage.getItem("operador"));
         if (!usuario) {
-      this.$router.push("/login");
-      return;
-  }
+            this.$router.push("/login");
+            return;
+        }
     },
 };
 </script>
@@ -127,7 +130,8 @@ export default {
                     <option value="" disabled>--- Selecciona tipo ---</option>
                     <option value="avisos" v-if="form.tipo !== 'alarma'">Avisos</option>
                     <option value="seguimiento" v-if="form.tipo !== 'alarma'">Seguimiento según protocolos</option>
-                    <option value="agendas" v-if="form.tipo !== 'alarma'">Agendas de ausencia domiciliaria y retorno</option>
+                    <option value="agendas" v-if="form.tipo !== 'alarma'">Agendas de ausencia domiciliaria y retorno
+                    </option>
                     <option value="alarma" v-else>Alarmas</option>
                 </Field>
                 <ErrorMessage name="tipo" class="text-danger" />
@@ -148,7 +152,7 @@ export default {
                     </template>
                     <template v-else-if="form.tipo === 'agendas'">
                         <option value="suspension">Suspensión temporal del servicio</option>
-                        <option value="retornos">Retornos o fin de la ausencia</option>
+                        <option value="retorno">Retornos o fin de la ausencia</option>
                     </template>
                 </Field>
                 <ErrorMessage name="categoria" class="text-danger" />

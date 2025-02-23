@@ -15,6 +15,8 @@ export default {
       sortKey: "nombre",
       sortOrder: 1,
       searchQuery: "",
+      currentPage: 1,
+      itemsPerPage: 10, // Número de pacientes por página
     };
   },
 
@@ -37,8 +39,17 @@ export default {
         if (valorA > valorB) return 1 * this.sortOrder;
         return 0;
       });
+    },
+
+    pacientesPaginados() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.pacientesOrdenados.slice(start, end);
+    },
+
+    totalPages() {
+      return Math.ceil(this.pacientesOrdenados.length / this.itemsPerPage);
     }
-    ,
   },
 
   async mounted() {
@@ -58,6 +69,12 @@ export default {
         this.sortOrder = 1;
       }
     },
+
+    cambiarPagina(pagina) {
+      if (pagina > 0 && pagina <= this.totalPages) {
+        this.currentPage = pagina;
+      }
+    }
   },
 };
 </script>
@@ -88,9 +105,14 @@ export default {
           </tr>
         </thead>
         <tbody>
-          <patient v-for="paciente in pacientesOrdenados" :key="paciente.id" :paciente="paciente"></patient>
+          <patient v-for="paciente in pacientesPaginados" :key="paciente.id" :paciente="paciente"></patient>
         </tbody>
       </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+      <button class="btn btn-primary mx-1" @click="cambiarPagina(currentPage - 1)" :disabled="currentPage === 1">Anterior</button>
+      <button class="btn btn-primary mx-1" @click="cambiarPagina(currentPage + 1)" :disabled="currentPage === totalPages">Siguiente</button>
     </div>
   </div>
 </template>
@@ -137,7 +159,7 @@ th.sortable {
 }
 
 th.sortable:hover {
-  color: var(--color-secondary);
+  color: var (--color-secondary);
   text-decoration: underline;
 }
 

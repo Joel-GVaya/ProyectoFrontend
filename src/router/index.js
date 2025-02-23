@@ -103,6 +103,12 @@ const router = createRouter({
       props: (route) => ({ tipo: route.query.tipo }),
     },
     {
+      path: "/editWarn/:id",
+      name: "editWarn",
+      component: generateWarn,
+      props: (route) => ({ tipo: route.query.tipo, id: route.params.id }),
+    },
+    {
       path: "/warnDetails/:id",
       name: "warnDetails",
       component: WarnDetails,
