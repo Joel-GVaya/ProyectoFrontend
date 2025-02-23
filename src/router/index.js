@@ -11,6 +11,7 @@ import FormPatient from "@/views/FormPatient.vue";
 import CallsView from "../views/CallsView.vue";
 import generateWarn from "../views/GenerateWarn.vue";
 import WarnDetails from "@/views/WarnDetails.vue";
+import Informes from '@/views/Informes.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -134,6 +135,11 @@ const router = createRouter({
       name: "editPatient",
       component: FormPatient,
       props: true,
+    },
+    {
+      path: '/informes',
+      name: 'informes',
+      component: Informes,
     },
   ],
 });
