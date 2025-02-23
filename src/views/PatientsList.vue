@@ -16,7 +16,7 @@ export default {
       sortOrder: 1,
       searchQuery: "",
       currentPage: 1,
-      itemsPerPage: 10, // Número de pacientes por página
+      itemsPerPage: 10,
     };
   },
 
