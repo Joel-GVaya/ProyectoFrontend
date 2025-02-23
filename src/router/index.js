@@ -11,6 +11,7 @@ import FormPatient from '@/views/FormPatient.vue';
 import CallsView from '../views/CallsView.vue';
 import generateWarn from '../views/GenerateWarn.vue';
 import WarnDetails from '@/views/WarnDetails.vue';
+import Informes from '@/views/Informes.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -77,6 +78,12 @@ const router = createRouter({
       path: '/registerOutgoingCall',
       name: 'registerOutgoingCall',
       component: FormOutgoingCalls,
+    },
+
+    {
+      path: '/informes',
+      name: 'informes',
+      component: Informes,
     },
     {
       path: '/editOutgoingCall/:id',

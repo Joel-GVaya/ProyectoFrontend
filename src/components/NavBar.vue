@@ -26,6 +26,9 @@ export default {
             <RouterLink class="nav-link nav-item-hover" to="/registerPatient">Registrar paciente</RouterLink>
           </li>
           <li class="nav-item">
+            <RouterLink class="nav-link nav-item-hover" to="/informes">Informes</RouterLink>
+          </li>
+          <li class="nav-item">
             <RouterLink class="nav-link nav-item-hover" to="/calendarViewAvisos">Calendario de Avisos</RouterLink>
           </li>
               <li class="nav-item">
