@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
-const SERVER = "http://localhost/api";
+const SERVER = "https://back.projectegrup3.ddaw.es/api";
 
 export const useDataStore = defineStore("data", {
   state() {
