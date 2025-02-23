@@ -1,9 +1,30 @@
 <script>
 export default {
   name: 'NavBar',
+  data() {
+    return {
+      isLoggedIn: !!localStorage.getItem("operador")
+    };
+  },
   computed: {
     operadorId() {
       return JSON.parse(localStorage.getItem("operador"))?.id ?? null;
+    }
+  },
+  mounted() {
+    window.addEventListener('storage', this.updateLoginStatus);
+  },
+  beforeDestroy() {
+    window.removeEventListener('storage', this.updateLoginStatus);
+  },
+  methods: {
+    updateLoginStatus() {
+      this.isLoggedIn = !!localStorage.getItem("operador");
+    }
+  },
+  watch: {
+    '$route'() {
+      this.updateLoginStatus();
     }
   }
 };
@@ -18,28 +39,29 @@ export default {
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">  
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="isLoggedIn">  
           <li class="nav-item">
             <RouterLink class="nav-link nav-item-hover" to="/">Listado de pacientes</RouterLink>
+          </li>          
+          <li class="nav-item">
+            <RouterLink class="nav-link nav-item-hover" to="/registerPatient">Registrar paciente</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link nav-item-hover" to="/calendarViewAvisos">Calendario de Avisos</RouterLink>
+          </li>
+              <li class="nav-item">
+            <RouterLink class="nav-link nav-item-hover" :to="{ name: 'generateWarn', query: { tipo: 'alarma' } }">Crear Aviso de Zona</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link nav-item-hover" :to="{ name: 'myCallsOperador', params: { operador: operadorId } }">Mis llamadas</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" to="/generateWarn">Crear Aviso</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" to="/calendarViewAvisos">Calendario de Avisos</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" to="/login">Login</RouterLink>
+            <RouterLink class="nav-link nav-item-hover" to="/informes">Informes</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link nav-item-hover" to="/logout">Logout</RouterLink>
           </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link nav-item-hover" to="/registerPatient">Registrar paciente</RouterLink>
-          </li>
+
         </ul>
       </div>
     </div>

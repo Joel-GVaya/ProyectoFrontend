@@ -4,7 +4,6 @@ import { useDataStore } from "@/stores/store";
 import Patient from "@/components/Patient.vue";
 
 export default {
-
   props: ["id", "zona"],
 
   components: {
@@ -15,22 +14,42 @@ export default {
     return {
       sortKey: "nombre",
       sortOrder: 1,
+      searchQuery: "",
+      currentPage: 1,
+      itemsPerPage: 10,
     };
   },
 
   computed: {
     ...mapState(useDataStore, ["pacientes"]),
 
+    pacientesFiltrados() {
+      return this.pacientes.filter((paciente) => {
+        const nombre = paciente.nombre || '';
+        return nombre.toLowerCase().includes(this.searchQuery.toLowerCase());
+      });
+    },
+
     pacientesOrdenados() {
-      return [...this.pacientes].sort((a, b) => {
-        let valorA = a[this.sortKey]?.toString().toLowerCase() || "";
-        let valorB = b[this.sortKey]?.toString().toLowerCase() || "";
+      return [...this.pacientesFiltrados].sort((a, b) => {
+        let valorA = this.sortKey === "zona" ? a.zona?.nombre?.toLowerCase() || "" : a[this.sortKey]?.toString().toLowerCase() || "";
+        let valorB = this.sortKey === "zona" ? b.zona?.nombre?.toLowerCase() || "" : b[this.sortKey]?.toString().toLowerCase() || "";
 
         if (valorA < valorB) return -1 * this.sortOrder;
         if (valorA > valorB) return 1 * this.sortOrder;
         return 0;
       });
     },
+
+    pacientesPaginados() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.pacientesOrdenados.slice(start, end);
+    },
+
+    totalPages() {
+      return Math.ceil(this.pacientesOrdenados.length / this.itemsPerPage);
+    }
   },
 
   async mounted() {
@@ -50,6 +69,12 @@ export default {
         this.sortOrder = 1;
       }
     },
+
+    cambiarPagina(pagina) {
+      if (pagina > 0 && pagina <= this.totalPages) {
+        this.currentPage = pagina;
+      }
+    }
   },
 };
 </script>
@@ -57,6 +82,10 @@ export default {
 <template>
   <div class="container my-5">
     <h1 class="text-center mb-4">Listado de Pacientes</h1>
+
+    <div class="mb-3">
+      <input type="text" v-model="searchQuery" class="form-control" placeholder="Buscar paciente por nombre" />
+    </div>
 
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-hover rounded-3 shadow-sm">
@@ -76,46 +105,136 @@ export default {
           </tr>
         </thead>
         <tbody>
-          <patient v-for="paciente in pacientesOrdenados" :key="paciente.id" :paciente="paciente"></patient>
+          <patient v-for="paciente in pacientesPaginados" :key="paciente.id" :paciente="paciente"></patient>
         </tbody>
       </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+      <button class="btn btn-primary mx-1" @click="cambiarPagina(currentPage - 1)" :disabled="currentPage === 1">Anterior</button>
+      <button class="btn btn-primary mx-1" @click="cambiarPagina(currentPage + 1)" :disabled="currentPage === totalPages">Siguiente</button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.sortable {
-  cursor: pointer;
-  user-select: none;
+/* Colores */
+:root {
+  --color-primary: #3674B5;
+  --color-secondary: #578FCA;
+  --color-accent: #A1E3F9;
+  --color-background: #D1F8EF;
 }
 
-.sortable:hover {
+.container {
+  background-color: var(--color-background);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: var(--color-primary);
+  font-weight: bold;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-control {
+  border: 2px solid var(--color-primary);
+  border-radius: 5px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  width: 100%;
+  text-align: center;
+}
+
+th.sortable {
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  color: var(--color-primary);
+  transition: color 0.3s ease;
+}
+
+th.sortable:hover {
+  color: var (--color-secondary);
   text-decoration: underline;
 }
-table-responsive {
-    margin-left: 20px; /* Añadir margen izquierdo */
-    margin-right: 20px; /* Añadir margen derecho */
+
+th i {
+  margin-left: 5px;
+}
+
+.table {
+  table-layout: fixed;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .table-bordered {
-    border: 3px solid #007bff;
-    border-radius: 20px;
-}
-
-.table th, .table td {
-    border-top: 2px solid #007bff !important;
-    border-bottom: 2px solid #007bff !important;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f8f9fa;
-}
-
-.table th, .table td {
-    padding: 12px;
+  border-radius: 10px;
+  border: 2px solid var(--color-primary);
 }
 
 .table-hover tbody tr:hover {
-    background-color: #e9ecef;
+  background-color: var(--color-accent);
 }
+
+input[type="text"] {
+  border-radius: 20px;
+  border: 1px solid var(--color-primary);
+  padding: 8px 15px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.botones {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.botones button {
+  border-radius: 20px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn-success {
+  background: #28a745;
+  border: none;
+}
+
+.btn-warning {
+  background: #ffcc00;
+  border: none;
+  color: black;
+}
+
+.btn-danger {
+  background: #dc3545;
+  border: none;
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+.btn-warning:hover {
+  background: #e6b800;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+@media (max-width: 768px) {
+  .botones button {
+    width: 100%;
+  }
+}
+
 </style>

@@ -1,49 +1,91 @@
 <script>
 import { useDataStore } from "../stores/store";
-import { mapActions } from "pinia";
+import { mapActions, mapState } from "pinia";
 
 export default {
-  name: "WarnDetails",
   props: ["id"],
 
   data() {
     return {
-      aviso: {},
-      operador: {},
-      paciente: {},
+      aviso: null,
     };
   },
 
   async mounted() {
     this.aviso = await this.getAvisoByID(this.id);
-    this.operador = await this.getOperadorByID(this.aviso.operador_id);
-    this.paciente = await this.getPacienteByID(this.aviso.paciente_id);
   },
 
   methods: {
-    ...mapActions(useDataStore, ["getAvisoByID", "getOperadorByID", "getPacienteByID", "deleteAvisoByID"]),
-    async deleteAviso(id) {
-      await this.deleteAvisoByID(id);
-      this.$router.push({ name: "home" });
+    ...mapActions(useDataStore, ["getAvisoByID", "deleteAvisoByID"]),
+    async editAviso(id) {
+      this.$router.push({
+        name: 'editWarn',
+        params: { id: id },
+        query: {
+          tipo: this.aviso.tipo,
+        }
+      });
+    },
+
+    formatFecha(fechaISO) {
+      const separador = fechaISO.includes("T") ? "T" : " ";
+      const [fecha, hora] = fechaISO.split(separador);
+      const [year, month, day] = fecha.split("-");
+      const [hour, minute] = hora.split(":");
+      return {
+        fecha: `${day}/${month}/${year}`,
+        hora: `${hour}:${minute}`
+      };
     }
   },
+
+  computed: {
+    ...mapState(useDataStore, ["getNomZonaById"]),
+    frecuenciaFormateada() {
+      if (this.aviso.frecuencia && this.aviso.frecuencia.startsWith("periodico")) {
+        const dias = this.aviso.frecuencia.split('-')[1];
+        return `Periódico, cada ${dias} días`;
+      }
+      return this.aviso.frecuencia;
+    },
+    fechaFormateada() {
+      if (this.aviso.fecha_inicio) {
+        return this.formatFecha(this.aviso.fecha_inicio).fecha;
+      }
+      return "";
+    },
+    horaFormateada() {
+      if (this.aviso.fecha_inicio) {
+        return this.formatFecha(this.aviso.fecha_inicio).hora;
+      }
+      return "";
+    }
+  }
 };
 </script>
 
 <template>
-  <div class="warn-details">
-    <h1>Detalles del Aviso</h1>
-    <div class="detail"><strong>Fecha de Inicio:</strong> {{ aviso.fecha_inicio }}</div>
-    <div class="detail"><strong>Operador:</strong> {{ operador.nombre }}</div>
-    <div class="detail"><strong>Paciente:</strong> {{ paciente.nombre }}</div>
-    <div class="detail"><strong>Tipo:</strong> {{ aviso.tipo }}</div>
-    <div class="detail"><strong>Categoría:</strong> {{ aviso.categoria }}</div>
-    <div class="detail"><strong>Descripción:</strong> {{ aviso.descripcion }}</div>
-    <div class="detail"><strong>Frecuencia:</strong> {{ aviso.frecuencia }}</div>
-    <div class="detail"><strong>Zona Afectada:</strong> {{ aviso.zona_afectada }}</div>
+  <div v-if="aviso">
+    <div class="warn-details">
+      <h1>Detalles del Aviso</h1>
+      <div class="detail"><strong>Fecha de inicio:</strong> {{ fechaFormateada }}</div>
+      <div class="detail"><strong>Hora de inicio:</strong> {{ horaFormateada }}</div>
+      <div class="detail" v-if="aviso.operador"><strong>Operador:</strong> {{ aviso.operador.nombre }}</div>
+      <div class="detail" v-if="aviso.paciente"><strong>Paciente:</strong> {{ aviso.paciente.nombre }}</div>
+      <div class="detail"><strong>Tipo:</strong> {{ aviso.tipo }}</div>
+      <div class="detail" v-if="aviso.categoria"><strong>Categoría:</strong> {{ aviso.categoria }}</div>
+      <div class="detail"><strong>Descripción:</strong> {{ aviso.descripcion }}</div>
+      <div class="detail"><strong>Frecuencia:</strong> {{ frecuenciaFormateada }}</div>
+      <div class="detail" v-if="aviso.zona_id !== null"><strong>Zona Afectada:</strong> {{ getNomZonaById(aviso.zona_id)
+      }}
+      </div>
+    </div>
+    <div>
+      <button class="edit-button" @click="editAviso(aviso.id)">Editar</button>
+    </div>
   </div>
-  <div>
-    <button class="edit-button" @click="deleteAviso(aviso.id)">Eliminar</button>
+  <div v-else>
+    <p>Cargando...</p>
   </div>
 </template>
 
@@ -56,17 +98,21 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .warn-details h1 {
   text-align: center;
   margin-bottom: 20px;
 }
+
 .detail {
   margin-bottom: 10px;
   font-size: 1.1em;
 }
+
 .detail strong {
   color: #333;
 }
+
 .edit-button {
   display: block;
   margin: 20px auto;

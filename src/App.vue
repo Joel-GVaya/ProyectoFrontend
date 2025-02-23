@@ -14,12 +14,12 @@ export default {
     ...mapActions(useDataStore, ['populatePacientes', 'populateOperadores', 'populateZonas', 'populateLlamadasSalientes', 'populateLlamadasEntrantes']),
   },
 
-  mounted() {
-    this.populatePacientes();
-    this.populateOperadores();
-    this.populateZonas();
-    this.populateLlamadasSalientes();
-    this.populateLlamadasEntrantes();
+  async mounted() {
+    await this.populateZonas();
+    await this.populatePacientes();
+    await this.populateOperadores();
+    await this.populateLlamadasSalientes();
+    await this.populateLlamadasEntrantes();
   }
 };
 </script>
@@ -34,11 +34,16 @@ export default {
     <RouterView />
     
     <footer>
-      <a>Footer CAMBIADO</a>
+      <a>Teleasistència - Grup 3 - 2024/2025</a>
     </footer>
   </div>
 </template>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+footer{
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
 </style>

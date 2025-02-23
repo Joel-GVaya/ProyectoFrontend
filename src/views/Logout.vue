@@ -3,7 +3,8 @@
         name: 'Logout',
 
         mounted() {
-            localStorage.removeItem('operador'); // Elimina solo el usuario
+            localStorage.removeItem('operador');
+            localStorage.removeItem('token');
             this.$router.push({name:'login'})
         }
     }

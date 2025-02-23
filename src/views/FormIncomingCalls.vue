@@ -10,20 +10,17 @@ export default {
     Field,
     ErrorMessage,
   },
-  props: {
-    id: String,
-  },
+  props: ["id"],
   computed: {
     ...mapState(useDataStore, [
       "llamadas",
       "pacientes",
-      "getNomPacienteById",
-      "getIdByNomPaciente",
+      "getNomOperadorById",
     ]),
   },
   data() {
     const mySchema = yup.object({
-      persona: yup.string().required("La persona que realiza la llamada es obligatoria"),
+      user_id: yup.string().required("El operador es obligatorio"),
       dia: yup
         .string()
         .matches(/^\d{4}-\d{2}-\d{2}$/, "Formato incorrecto, debe ser YYYY-MM-DD")
@@ -32,78 +29,102 @@ export default {
         .string()
         .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato incorrecto, debe ser HH:MM")
         .required("La hora de la llamada es obligatoria"),
-      horas: yup.number().min(0, "Las horas deben ser positivas").required("La duración en horas es obligatoria"),
-      minutos: yup.number().min(0, "Los minutos deben ser positivos").required("La duración en minutos es obligatoria"),
+      descripcion: yup.string().max(500, "Máximo 500 caracteres").nullable(),
+      subtipo: yup.string().required("El subtipo de la llamada es obligatorio"),
+      paciente_id: yup.string().required("El paciente es obligatorio"),
+      horas: yup
+        .number()
+        .min(0, "Las horas deben ser 0 o más")
+        .required("Especifíca las horas de la llamada"),
+      minutos: yup
+        .number()
+        .min(0, "Los minutos deben ser 0 o más")
+        .max(59, "Los minutos deben ser menores de 60")
+        .required("Espefíca los minutos de la llamada"),
       segundos: yup
         .number()
-        .min(0, "Los segundos deben ser positivos")
+        .min(0, "Los segundos deben ser 0 o más")
         .max(59, "Los segundos deben ser menores de 60")
-        .required("La duración en segundos es obligatoria"),
-      observaciones: yup.string().max(500, "Máximo 500 caracteres").nullable(),
-      subtipo: yup.string().required("El subtipo de la llamada es obligatorio"),
-    });
+        .required("Especifíca los segundos de la llamada"),
+    }).test(
+      "duracion-valida",
+      "La duración total de la llamada no puede ser 0",
+      function (values) {
+        if (values.horas === 0 && values.minutos === 0 && values.segundos === 0) {
+          return this.createError({ path: "horas", message: "La duración de llamada debe ser superior a 0" });
+        }
+        return true;
+      }
+    );
 
     return {
       llamada: {
         dia: "",
         hora: "",
-        horas: 0,
-        minutos: 0,
-        segundos: 0,
-        emergencia: this.emergencia,
+        user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
+        paciente_id: this.$route.query.paciente_id || "",
+        descripcion: "",
+        subtipo: "",
+        duracion: "",
+        horas: null,
+        minutos: null,
+        segundos: null,
+        emergencia: "",
       },
+      operador: {},
       mySchema,
     };
   },
   methods: {
     ...mapActions(useDataStore, ["registrarLlamadaEntrante", "editIncomingCall", "getLlamadaEntrante"]),
 
-    submitLlamada() {
-      const fechaHora = `${this.llamada.dia} ${this.llamada.hora}`;
+    async submitLlamada() {
       const duracionTotal = (this.llamada.horas * 60 + this.llamada.minutos) * 60 + this.llamada.segundos;
 
       const llamadaData = {
-        ...this.llamada,
-        fecha_hora: fechaHora,
-        paciente_id: this.llamada.paciente_id,
+        id: Number(this.id),
+        fecha_hora: `${this.llamada.dia} ${this.llamada.hora}`,
+        user_id: Number(this.llamada.user_id),
+        paciente_id: Number(this.llamada.paciente_id),
+        emergencia: this.llamada.emergencia ? 1 : 0,
+        subtipo: this.llamada.subtipo,
+        descripcion: this.llamada.descripcion,
         duracion: duracionTotal,
-        descripcion: this.llamada.descripcion || "",
       };
 
       delete llamadaData.dia;
       delete llamadaData.hora;
+      delete llamadaData.horas;
       delete llamadaData.minutos;
       delete llamadaData.segundos;
-      delete llamadaData.horas;
 
       if (!this.id) {
-        this.registrarLlamadaEntrante(llamadaData);
+        await this.registrarLlamadaEntrante(llamadaData);
       } else {
-        this.editIncomingCall(llamadaData);
+        await this.editIncomingCall(llamadaData);
       }
 
       this.$router.push("/");
     },
 
-    cargarLlamada() {
+    async cargarLlamada() {
       if (this.id) {
-        this.getLlamadaEntrante(this.id).then((data) => {
-          if (data.fecha_hora) {
-            const [fecha, horaCompleta] = data.fecha_hora.split(" ");
-            const [hora, minutos] = horaCompleta.split(":");
-            const { horas, minutos: min, segundos } = this.formatDuracion(data.duracion);
+        const data = await this.getLlamadaEntrante(this.id);
+        if (data && data.fecha_hora) {
+          const [fecha, horaCompleta] = data.fecha_hora.split(" ");
+          const [hora, minutos] = horaCompleta.split(":");
+          const { horas, minutos: min, segundos } = this.formatDuracion(data.duracion);
 
-            this.llamada = {
-              ...data,
-              dia: fecha,
-              hora: `${hora}:${minutos}`,
-              horas,
-              minutos: min,
-              segundos,
-              emergencia: data.emergencia,
-            };
-          }
-        });
+          this.llamada = {
+            ...data,
+            dia: fecha,
+            hora: `${hora}:${minutos}`,
+            horas,
+            minutos: min,
+            segundos,
+            emergencia: data.emergencia === 1,
+          };
+        }
       }
     },
 
@@ -113,17 +134,37 @@ export default {
       const segundos = duracionEnSegundos % 60;
       return { horas, minutos, segundos };
     },
+
+    resetForm() {
+      this.llamada = {
+        dia: new Date().toISOString().split("T")[0],
+        hora: new Date().toTimeString().split(" ")[0].slice(0, 5),
+        user_id: JSON.parse(localStorage.getItem("operador"))?.id || null,
+        paciente_id: this.$route.query.paciente_id || "",
+        descripcion: "",
+        subtipo: "",
+        duracion: "",
+        horas: null,
+        minutos: null,
+        segundos: null,
+        emergencia: this.$route.query.emergencia === "true",
+      };
+      this.operador = JSON.parse(localStorage.getItem("operador"))?.nombre || "";
+    }
+
   },
-  mounted() {
-  if (!this.id) {
-    const now = new Date();
-    this.llamada.dia = now.toISOString().split("T")[0];
-    this.llamada.hora = now.toTimeString().split(" ")[0].slice(0, 5);
-    this.llamada.emergencia = this.$route.query.emergencia === "true";
-  } else {
-    this.cargarLlamada();
+  async mounted() {
+    if (!this.id) {
+      const now = new Date();
+      this.llamada.dia = now.toISOString().split("T")[0];
+      this.llamada.hora = now.toTimeString().slice(0, 5);
+      this.operador = JSON.parse(localStorage.getItem('operador')).nombre;
+      this.llamada.emergencia = this.$route.query.emergencia === "true";
+    } else {
+      await this.cargarLlamada();
+      this.operador = this.getNomOperadorById(this.llamada.user_id);
+    }
   }
-}
 };
 </script>
 
@@ -132,15 +173,20 @@ export default {
     <h3 v-if="llamada.emergencia">Registrar llamada de emergencia</h3>
     <h3 v-else>Registrar llamada no urgente</h3>
     <Form id="llamadaForm" method="post" @submit="submitLlamada" :validation-schema="mySchema">
+      <div class="mb-3">
+        <label for="user_id" class="form-label">Operador:</label>
+        <Field type="text" name="user_id" v-model="operador" class="form-control" readonly />
+        <ErrorMessage name="user_id" class="text-danger" />
+      </div>
       <div class="form-group">
-        <label for="persona">Persona que realiza la llamada:</label>
-        <Field as="select" name="persona" v-model="llamada.paciente_id" class="form-control">
-          <option value="" disabled>--- Escoge persona ---</option>
+        <label for="paciente_id" class="form-label">Persona que realiza la llamada: </label>
+        <Field as="select" name="paciente_id" v-model="llamada.paciente_id" class="form-select">
+          <option value="" disabled>--- Escoge paciente ---</option>
           <option v-for="paciente in pacientes" :value="paciente.id" :key="paciente.id">
             {{ paciente.nombre }}
           </option>
         </Field>
-        <ErrorMessage name="persona" class="error-message" />
+        <ErrorMessage name="paciente_id" class="text-danger" />
       </div>
 
       <div class="form-group">
@@ -149,22 +195,23 @@ export default {
         <Field as="select" name="subtipo" v-model="llamada.subtipo" class="form-control">
           <option value="" disabled>--- Escoge tipo ---</option>
           <template v-if="llamada.emergencia">
-            <option value="emergencia_social">Emergencias sociales</option>
-            <option value="emergencia_sanitaria">Emergencias sanitarias</option>
-            <option value="crisis_angustia">Crisis de soledad o angustia</option>
-            <option value="alarma_sin_respuesta">Alarma sin respuesta</option>
-            <option value="otro">Otro tipo de llamada...</option>
+            <option value="Emergencias sociales">Emergencias sociales</option>
+            <option value="Emergencias sanitarias">Emergencias sanitarias</option>
+            <option value="Crisis de soledad o angustia">Crisis de soledad o angustia</option>
+            <option value="Alarma sin respuesta">Alarma sin respuesta</option>
+            <option value="Otro tipo de llamada">Otro tipo de llamada...</option>
           </template>
           <template v-else>
-            <option value="notificar_ausencias">Notificar ausencias o retornos</option>
-            <option value="modificar_datos">Modificar datos personales</option>
-            <option value="llamadas_accidentales">Llamadas accidentales</option>
-            <option value="solicitud_informacion">Solicitud de información</option>
-            <option value="sugerencias_quejas">Sugerencias, quejas o reclamaciones</option>
-            <option value="llamadas_sociales">Llamadas sociales</option>
-            <option value="citas_medicas">Registrar citas médicas</option>
-            <option value="otro">Otro tipo de llamada...</option>
+            <option value="Notificar ausencias o retornos">Notificar ausencias o retornos</option>
+            <option value="Modificar datos personales">Modificar datos personales</option>
+            <option value="Llamadas accidentales">Llamadas accidentales</option>
+            <option value="Solicitud de informacion">Solicitud de información</option>
+            <option value="Sugerencias, quejas o reclamaciones">Sugerencias, quejas o reclamaciones</option>
+            <option value="Llamadas sociales">Llamadas sociales</option>
+            <option value="Registrar citas medicas">Registrar citas médicas</option>
+            <option value="Otro tipo de llamada">Otro tipo de llamada...</option>
           </template>
+
         </Field>
         <ErrorMessage name="subtipo" class="error-message" />
       </div>
@@ -184,13 +231,19 @@ export default {
       <div class="form-group">
         <label for="duracion">Duración de la llamada:</label>
         <div class="duration-fields">
-          <Field type="number" name="horas" v-model="llamada.horas" placeholder="Horas" min="0" class="form-control" />
+          <Field type="number" name="horas" v-model="llamada.horas" :placeholder="llamada.horas === null ? 'Horas' : ''"
+            min="0" class="form-control" />
           <span>:</span>
-          <Field type="number" name="minutos" v-model="llamada.minutos" placeholder="Minutos" min="0" max="59" class="form-control" />
+          <Field type="number" name="minutos" v-model="llamada.minutos"
+            :placeholder="llamada.minutos === null ? 'Minutos' : ''" min="0" max="59" class="form-control" />
           <span>:</span>
-          <Field type="number" name="segundos" v-model="llamada.segundos" placeholder="Segundos" min="0" max="59" class="form-control" />
+          <Field type="number" name="segundos" v-model="llamada.segundos"
+            :placeholder="llamada.segundos === null ? 'Segundos' : ''" min="0" max="59" class="form-control" />
         </div>
+        <ErrorMessage name="horas" class="error-message" />
+        <br>
         <ErrorMessage name="minutos" class="error-message" />
+        <br>
         <ErrorMessage name="segundos" class="error-message" />
       </div>
 
@@ -203,7 +256,7 @@ export default {
       <div class="form-actions">
         <button type="submit" v-if="!id" class="btn btn-primary">Añadir</button>
         <button type="submit" v-else class="btn btn-primary">Editar</button>
-        <button type="reset" v-if="!id" class="btn btn-secondary">Reset</button>
+        <button type="button" v-if="!id" @click="resetForm" class="btn btn-secondary">Reset</button>
         <button type="button" v-else @click="cargarLlamada" class="btn btn-secondary">Reset datos</button>
       </div>
     </Form>

@@ -31,12 +31,13 @@ export default {
   },
 
   methods: {
-    ...mapActions(useDataStore, ["login"]),
+    ...mapActions(useDataStore, ["login", "populatePacientes"]),
 
     async handleSubmit() {
       const { correo, paswd } = this.form;
       const user = await this.login(correo, paswd);
       if (user) {
+        await this.populatePacientes();
         this.$router.push({ name: "home" });
       } else {
         alert("Correo o contraseña incorrectos");
@@ -44,9 +45,16 @@ export default {
     },
 
     async iniciarSessionGoogle() {
-      loginWithGoogle();
+      const user = await loginWithGoogle();
+      if (user) {
+        this.$router.push({ name: "home" });
+      } else {
+        alert("Error al iniciar sesión con Google.");
+      }
     },
+
   },
+
 };
 </script>
 
@@ -71,8 +79,10 @@ export default {
               </div>
 
               <button type="submit" class="btn btn-primary w-100">Enviar</button>
-              <button type="button" class="btn btn-danger w-100 mt-2" @click="iniciarSessionGoogle">Iniciar sesión con
-                Google</button>
+              <button type="button" class="btn btn-danger w-100 mt-2" @click="iniciarSessionGoogle">
+                Iniciar sesión con Google
+              </button>
+
             </Form>
           </div>
         </div>

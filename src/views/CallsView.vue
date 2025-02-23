@@ -16,7 +16,7 @@ export default {
 
   async mounted() {
     this.llamada = await this.getLlamadaEntrante(this.id);
-    this.operador = await this.getOperadorByID(this.llamada.operador_id);
+    this.operador = await this.getOperadorByID(this.llamada.user_id);
     this.paciente = await this.getPacienteByID(this.llamada.paciente_id);
   },
 
@@ -24,7 +24,24 @@ export default {
     ...mapActions(useDataStore, ["getLlamadaEntrante", "getOperadorByID", "getPacienteByID"]),
     editCall() {
       this.$router.push({ name: "editIncomingCall", params: { id: this.llamada.id } });
-    }
+    },
+    formatDuracion(duracionEnSegundos) {
+      const minutos = Math.floor(duracionEnSegundos / 60);
+      const segundos = duracionEnSegundos % 60;
+      if (minutos === 0) {
+        return `${segundos} segundos`;
+      } else if (segundos === 0) {
+        return `${minutos} minutos`;
+      } else if (minutos === 1) {
+        return `${minutos} minuto y ${segundos} segundos`;
+      } else if (segundos === 1) {
+        return `${minutos} minutos y ${segundos} segundo`;
+      } else if (minutos === 1 && segundos === 1) {
+        return `${minutos} minuto y ${segundos} segundo`;
+      } else {  
+        return `${minutos} minutos y ${segundos} segundos`;
+      }
+    },
   },
 };
 </script>
@@ -38,7 +55,7 @@ export default {
     <div class="detail"><strong>Emergencia:</strong> {{ llamada.emergencia ? 'Sí' : 'No' }}</div>
     <div class="detail"><strong>Subtipo:</strong> {{ llamada.subtipo }}</div>
     <div class="detail"><strong>Descripción:</strong> {{ llamada.descripcion }}</div>
-    <div class="detail"><strong>Duración:</strong> {{ llamada.duracion }} segundos</div>
+    <div class="detail"><strong>Duración:</strong> {{ formatDuracion(llamada.duracion) }}</div>
   </div>
   <div>
     <button class="edit-button" @click="editCall">Editar</button>
@@ -54,17 +71,21 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .call-details h1 {
   text-align: center;
   margin-bottom: 20px;
 }
+
 .detail {
   margin-bottom: 10px;
   font-size: 1.1em;
 }
+
 .detail strong {
   color: #333;
 }
+
 .edit-button {
   display: block;
   margin: 20px auto;

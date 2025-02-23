@@ -25,44 +25,44 @@ export default {
     ...mapActions(useDataStore, ["getPacienteByID"]),
 
     editarLlamadaEntrante(id) {
-      this.$router.push({ name: "editIncomingCall", params: { id: id } });
+      this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente_id: this.id } });
     },
 
     editarLlamadaSaliente(id) {
-      this.$router.push({ name: "editOutgoingCall", params: { id: id } });
+      this.$router.push({ name: "editOutgoingCall", params: { id: id }, query: { paciente_id: this.id } });
     },
 
-    formatFecha(fecha) {
-      const [año, mes, dia] = fecha.split("-");
-      return `${dia}-${mes}-${año}`;
+    formatDuracion(duracionEnSegundos) {
+      if (duracionEnSegundos < 60) {
+        return `${duracionEnSegundos} segundos`;
+      } else {
+        const minutos = Math.floor(duracionEnSegundos / 60);
+        return minutos > 1 ? `${minutos} minutos` : `${minutos} minuto`;
+      }
     },
 
     async cargarPaciente() {
-      this.paciente = await this.getPacienteByID(this.id);
-
-      this.llamadasEntrantes = this.getLlamadasEntrantesByPacienteId(this.id).map(
-        (llamada) => ({
-          ...llamada,
-          fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
-          hora: llamada.fecha_hora.split(" ")[1].slice(0, 5),
-          duracion: Math.round(llamada.duracion / 60),
-        })
-      );
-
-      this.llamadasSalientes = this.getLlamadasSalientesByPacienteId(this.id).map(
-        (llamada) => ({
-          ...llamada,
-          fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
-          hora: llamada.fecha_hora.split(" ")[1].slice(0, 5),
-          duracion: Math.round(llamada.duracion / 60),
-        })
-      );
+      try {
+        this.paciente = await this.getPacienteByID(this.id);
+        this.llamadasEntrantes = await this.getLlamadasEntrantesByPacienteId(this.id);
+        this.llamadasSalientes = await this.getLlamadasSalientesByPacienteId(this.id);
+      } catch (error) {
+        alert("Error al cargar el paciente: " + error);
+      }
     },
   },
 
+  async mounted() {
+    await this.cargarPaciente();
+  },
 
-  mounted() {
-    this.cargarPaciente();
+  watch: {
+    id: {
+      immediate: true,
+      handler() {
+        this.cargarPaciente();
+      },
+    },
   },
 };
 </script>
@@ -72,7 +72,6 @@ export default {
     <div class="card shadow-sm p-4">
       <h2 class="text-center mb-4">Detalles del Paciente</h2>
 
-      <!-- Información del paciente -->
       <div class="row">
         <div class="col-md-6">
           <ul class="list-unstyled">
@@ -89,9 +88,21 @@ export default {
             <li><strong>Dirección: </strong> {{ paciente.direccion }}</li>
             <li><strong>Ciudad: </strong> {{ paciente.ciudad }}</li>
             <li><strong>Código Postal: </strong> {{ paciente.cp }}</li>
-            <li><strong>Zona: </strong> {{ getNomZonaById(paciente.zona) }}</li>
+            <li><strong>Zona: </strong> {{ getNomZonaById(paciente.zona_id) }}</li>
             <li><strong>Situación Personal: </strong> {{ paciente.sit_personal }}</li>
             <li><strong>Situación Sanitaria: </strong> {{ paciente.sit_sanitaria }}</li>
+          </ul>
+        </div>
+        <div class="col-12">
+          <ul class="list-unstyled">
+            <li>
+              <strong v-if="paciente.personas_contacto?.length > 1">Personas de Contacto: </strong>
+              <strong v-else>Persona de contacto: </strong>
+            <li v-for="(personaContacto, index) in paciente.personas_contacto" :key="index">
+              {{ personaContacto.nombre }} {{ personaContacto.apellido }} ({{ personaContacto.relacion }}) - {{
+                personaContacto.telefono }}
+            </li>
+            </li>
           </ul>
         </div>
       </div>
@@ -114,13 +125,14 @@ export default {
               </thead>
               <tbody>
                 <tr v-for="llamada in llamadasEntrantes" :key="llamada.id">
-                  <td>{{ llamada.fecha }}</td>
-                  <td>{{ llamada.hora }}</td>
-                  <td>{{ llamada.duracion }} minutos</td>
+                  <td>{{ llamada.fecha_hora.split(" ")[0] }}</td>
+                  <td>{{ llamada.fecha_hora.split(" ")[1].slice(0, 5) }}</td>
+                  <td>{{ formatDuracion(llamada.duracion) }}</td>
                   <td>{{ llamada.emergencia ? "Sí" : "No" }}</td>
                   <td>{{ llamada.descripcion || 'No hay observaciones' }}</td>
                   <td>
-                    <button name="editar" class="btn btn-warning btn-sm me-2" @click="editarLlamadaEntrante(llamada.id)">
+                    <button name="editar" class="btn btn-warning btn-sm me-2"
+                      @click="editarLlamadaEntrante(llamada.id)">
                       <i class="bi bi-pencil-fill"> Editar</i>
                     </button>
                   </td>
@@ -129,11 +141,13 @@ export default {
             </table>
           </div>
           <div class="btn-container">
-            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: true } }">
+            <router-link
+              :to="{ name: 'registerIncomingCall', query: { emergencia: true, paciente_id: this.paciente.id } }">
               Registrar llamada de emergencia
             </router-link>
 
-            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: false } }">
+            <router-link
+              :to="{ name: 'registerIncomingCall', query: { emergencia: false, paciente_id: this.paciente.id } }">
               Registrar llamada no urgente
             </router-link>
           </div>
@@ -155,13 +169,14 @@ export default {
               </thead>
               <tbody>
                 <tr v-for="llamada in llamadasSalientes" :key="llamada.id">
-                  <td>{{ llamada.fecha }}</td>
-                  <td>{{ llamada.hora }}</td>
-                  <td>{{ llamada.duracion }} minutos</td>
-                  <td>{{ llamada.planificada ? "Sí" : "No" }}</td>
+                  <td>{{ llamada.fecha_hora.split(" ")[0] }}</td>
+                  <td>{{ llamada.fecha_hora.split(" ")[1].slice(0, 5) }}</td>
+                  <td>{{ formatDuracion(llamada.duracion) }}</td>
+                  <td>{{ llamada.planificado ? "Sí" : "No" }}</td>
                   <td>{{ llamada.descripcion || 'No hay observaciones' }}</td>
                   <td>
-                    <button name="editar" class="btn btn-warning btn-sm me-2" @click="editarLlamadaSaliente(llamada.id)">
+                    <button name="editar" class="btn btn-warning btn-sm me-2"
+                      @click="editarLlamadaSaliente(llamada.id)">
                       <i class="bi bi-pencil-fill"> Editar</i>
                     </button>
                   </td>
@@ -170,14 +185,26 @@ export default {
             </table>
           </div>
           <div class="btn-container">
-            <router-link :to="{ name: 'detailsPatient', query: { planificada: true } }">
+            <router-link :to="{ name: 'calendarView', query: { paciente_id: paciente.id } }">
               Registrar llamada agendada
             </router-link>
 
-            <router-link :to="{ name: 'registerOutgoingCall', query: { planificada: false } }">
+            <router-link :to="{
+              name: 'registerOutgoingCall',
+              query: {
+                planificado: false,
+                paciente_id: this.paciente.id
+              }
+            }">
               Registrar llamada sin agendar
             </router-link>
           </div>
+        </div>
+        <div>
+          <router-link :to="{ name: 'generateWarn', query: { tipo: 'paciente', paciente_id: this.id } }"
+            class="btn btn-primary">
+            Crear aviso para paciente
+          </router-link>
         </div>
       </div>
     </div>
@@ -221,9 +248,10 @@ h4 {
   background-color: #e9f7ef;
 }
 
-.llamadas-entrantes, .llamadas-salientes {
-  min-height: 300px; /* Ajusta según sea necesario */
-  overflow-x: auto; /* Permite el desplazamiento horizontal si la tabla es ancha */
+.llamadas-entrantes,
+.llamadas-salientes {
+  min-height: 300px;
+  overflow-x: auto;
 }
 
 
