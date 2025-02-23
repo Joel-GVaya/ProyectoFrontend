@@ -26,7 +26,8 @@ export default {
       events: {},
       weekdays: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
       llamadas: [],
-      avisos: []
+      avisos: [],
+      zonaIdUsuario: null, // Añadir esta línea
     };
   },
 
@@ -37,12 +38,13 @@ export default {
   },
 
   mounted() {
-    this.updateData();
     const usuario = JSON.parse(localStorage.getItem("operador"));
     if (!usuario) {
       this.$router.push("/login");
       return;
-  }
+    }
+    this.zonaIdUsuario = usuario.zona_id; // Obtener la zona_id del usuario logueado
+    this.updateData();
   },
 
   computed: {
@@ -94,6 +96,7 @@ export default {
     async getAvisos() {
       const store = useDataStore();
       this.avisos = await store.getAvisos();
+      this.avisos = this.avisos.filter(aviso => aviso.zona_id === this.zonaIdUsuario); // Filtrar avisos por zona_id
       this.mostrarAvisos();
     },
     mostrarAvisos() {
