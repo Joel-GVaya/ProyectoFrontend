@@ -79,12 +79,11 @@ export default {
     ...mapActions(useDataStore, ["registrarLlamadaEntrante", "editIncomingCall", "getLlamadaEntrante"]),
 
     async submitLlamada() {
-      const fechaHora = `${this.llamada.dia} ${this.llamada.hora}`;
       const duracionTotal = (this.llamada.horas * 60 + this.llamada.minutos) * 60 + this.llamada.segundos;
 
       const llamadaData = {
         id: Number(this.id),
-        fecha_hora: fechaHora,
+        fecha_hora: `${this.llamada.dia} ${this.llamada.hora}`,
         user_id: Number(this.llamada.user_id),
         paciente_id: Number(this.llamada.paciente_id),
         emergencia: this.llamada.emergencia ? 1 : 0,
@@ -158,12 +157,12 @@ export default {
     if (!this.id) {
       const now = new Date();
       this.llamada.dia = now.toISOString().split("T")[0];
-      this.llamada.hora = now.toTimeString().split(" ")[0].slice(0, 5);
+      this.llamada.hora = now.toTimeString().slice(0, 5);
       this.operador = JSON.parse(localStorage.getItem('operador')).nombre;
       this.llamada.emergencia = this.$route.query.emergencia === "true";
     } else {
-      this.operador = this.getNomOperadorById(this.llamada.user_id);
       await this.cargarLlamada();
+      this.operador = this.getNomOperadorById(this.llamada.user_id);
     }
   }
 };
@@ -176,7 +175,7 @@ export default {
     <Form id="llamadaForm" method="post" @submit="submitLlamada" :validation-schema="mySchema">
       <div class="mb-3">
         <label for="user_id" class="form-label">Operador:</label>
-        <Field type="text" name="user_id" v-model="operador" class="form-control" disabled />
+        <Field type="text" name="user_id" v-model="operador" class="form-control" readonly />
         <ErrorMessage name="user_id" class="text-danger" />
       </div>
       <div class="form-group">

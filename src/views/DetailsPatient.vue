@@ -4,7 +4,7 @@ import { useDataStore } from "@/stores/store";
 
 export default {
   props: ["id"],
-  
+
   data() {
     return {
       paciente: {},
@@ -21,10 +21,10 @@ export default {
       "populateZonas",
     ]),
   },
-  
+
   methods: {
     ...mapActions(useDataStore, ["getPacienteByID"]),
-    
+
     editarLlamadaEntrante(id) {
       this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente_id: this.id } });
     },
@@ -33,54 +33,28 @@ export default {
       this.$router.push({ name: "editOutgoingCall", params: { id: id }, query: { paciente_id: this.id } });
     },
 
-    formatFecha(fecha) {
-      const [año, mes, dia] = fecha.split("-");
-      return `${dia}-${mes}-${año}`;
-    },
-
     formatDuracion(duracionEnSegundos) {
       if (duracionEnSegundos < 60) {
         return `${duracionEnSegundos} segundos`;
       } else {
         const minutos = Math.floor(duracionEnSegundos / 60);
-        if (minutos > 1) {
-          return `${minutos} minutos`;
-        } else {
-          return `${minutos} minuto`;
-        }
+        return minutos > 1 ? `${minutos} minutos` : `${minutos} minuto`;
       }
     },
 
     async cargarPaciente() {
       try {
         this.paciente = await this.getPacienteByID(this.id);
-
-        this.llamadasEntrantes = this.getLlamadasEntrantesByPacienteId(this.id).map(
-          (llamada) => ({
-            ...llamada,
-            fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
-            hora: llamada.fecha_hora.split(" ")[1].slice(0, 5),
-            duracion: this.formatDuracion(llamada.duracion),
-          })
-        );
-
-        this.llamadasSalientes = this.getLlamadasSalientesByPacienteId(this.id).map(
-          (llamada) => ({
-            ...llamada,
-            fecha: this.formatFecha(llamada.fecha_hora.split(" ")[0]),
-            hora: llamada.fecha_hora.split(" ")[1].slice(0, 5),
-            duracion: this.formatDuracion(llamada.duracion),
-          })
-        );
+        this.llamadasEntrantes = await this.getLlamadasEntrantesByPacienteId(this.id);
+        this.llamadasSalientes = await this.getLlamadasSalientesByPacienteId(this.id);
       } catch (error) {
-        alert("Error al cargar el paciente:", error);
+        alert("Error al cargar el paciente: " + error);
       }
     },
   },
 
-  async mounted() {
-    await this.cargarPaciente();
-    await this.populateZonas();
+  mounted() {
+    this.cargarPaciente();
   },
 
   watch: {
@@ -92,6 +66,7 @@ export default {
     },
   },
 };
+
 </script>
 
 <template>
@@ -152,9 +127,9 @@ export default {
               </thead>
               <tbody>
                 <tr v-for="llamada in llamadasEntrantes" :key="llamada.id">
-                  <td>{{ llamada.fecha }}</td>
-                  <td>{{ llamada.hora }}</td>
-                  <td>{{ llamada.duracion }}</td>
+                  <td>{{ llamada.fecha_hora.split(" ")[0] }}</td>
+                  <td>{{ llamada.fecha_hora.split(" ")[1].slice(0, 5) }}</td>
+                  <td>{{ formatDuracion(llamada.duracion) }}</td>
                   <td>{{ llamada.emergencia ? "Sí" : "No" }}</td>
                   <td>{{ llamada.descripcion || 'No hay observaciones' }}</td>
                   <td>
@@ -168,11 +143,13 @@ export default {
             </table>
           </div>
           <div class="btn-container">
-            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: true, paciente_id: this.paciente.id} }">
+            <router-link
+              :to="{ name: 'registerIncomingCall', query: { emergencia: true, paciente_id: this.paciente.id } }">
               Registrar llamada de emergencia
             </router-link>
 
-            <router-link :to="{ name: 'registerIncomingCall', query: { emergencia: false, paciente_id: this.paciente.id } }">
+            <router-link
+              :to="{ name: 'registerIncomingCall', query: { emergencia: false, paciente_id: this.paciente.id } }">
               Registrar llamada no urgente
             </router-link>
           </div>
@@ -194,9 +171,9 @@ export default {
               </thead>
               <tbody>
                 <tr v-for="llamada in llamadasSalientes" :key="llamada.id">
-                  <td>{{ llamada.fecha }}</td>
-                  <td>{{ llamada.hora }}</td>
-                  <td>{{ llamada.duracion }}</td>
+                  <td>{{ llamada.fecha_hora.split(" ")[0] }}</td>
+                  <td>{{ llamada.fecha_hora.split(" ")[1].slice(0, 5) }}</td>
+                  <td>{{ formatDuracion(llamada.duracion) }}</td>
                   <td>{{ llamada.planificado ? "Sí" : "No" }}</td>
                   <td>{{ llamada.descripcion || 'No hay observaciones' }}</td>
                   <td>
@@ -226,7 +203,8 @@ export default {
           </div>
         </div>
         <div>
-          <router-link :to="{ name: 'generateWarn', query: { tipo: 'paciente', paciente_id: paciente.id } }" class="btn btn-primary">
+          <router-link :to="{ name: 'generateWarn', query: { tipo: 'paciente', paciente_id: this.id } }"
+            class="btn btn-primary">
             Crear aviso para paciente
           </router-link>
         </div>
