@@ -14,12 +14,12 @@ export default {
     ...mapActions(useDataStore, ['populatePacientes', 'populateOperadores', 'populateZonas', 'populateLlamadasSalientes', 'populateLlamadasEntrantes']),
   },
 
-  mounted() {
-    this.populateZonas();
-    this.populatePacientes();
-    this.populateOperadores();
-    this.populateLlamadasSalientes();
-    this.populateLlamadasEntrantes();
+  async mounted() {
+    await this.populateZonas();
+    await this.populatePacientes();
+    await this.populateOperadores();
+    await this.populateLlamadasSalientes();
+    await this.populateLlamadasEntrantes();
   }
 };
 </script>
