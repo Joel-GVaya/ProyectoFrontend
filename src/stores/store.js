@@ -463,4 +463,30 @@ export const useDataStore = defineStore("data", {
       }
     },
   },
+
+  async reportePacientes() {
+    try {
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+      const response = await axios.get(`${SERVER}/reportes/pacientes`, headers);
+      return response.data.data.sort((a, b) => a.apellido.localeCompare(b.apellido));
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  },
+
+  async reporteHistoricoZona(id) {
+    try {
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+      const response = await axios.get(`${SERVER}/reportes/emergencias/${id}`, headers);
+      return response.data.data;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  },
+
+  
 });
