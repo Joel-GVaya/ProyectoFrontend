@@ -1,5 +1,5 @@
 <script>
-import { useDataStore } from '@/stores/store';
+import { useDataStore } from '../stores/store';
 import { computed } from 'vue';
 import { mapActions } from 'pinia';
 
@@ -95,39 +95,6 @@ export default {
             <button @click="logHistoricoZona">Reporte historico de la zona</button>
         </div>
         <button @click="logPacientes">Reporte de Pacientes</button>
-        <div class="form-container">
-            <label for="date-select">Seleccione una fecha:</label><br>
-            <input type="date" v-model="selectedDate" id="date-select"><br>
-            <label for="type-select">Seleccione un tipo:</label><br>
-            <select v-model="selectedType" id="type-select">
-                <option value="1">Planificado</option>
-                <option value="0">No Planificado</option>
-                <option value="1">Emergencia</option>
-                <option value="0">No Emergencia</option>
-            </select><br>
-            <label for="zone-select">Seleccione una zona:</label><br>
-            <select v-model="selectedZone" id="zone-select">
-                <option v-for="zona in zonas" :key="zona.id" :value="zona.id">
-                    {{ zona.nombre }}
-                </option>
-            </select><br>
-            <button @click="logLlamadasProgramadas">Reporte de Llamadas Programadas</button>
-            <button @click="logLlamadasRealizadas">Reporte de Llamadas Realizadas</button>
-        </div>
-        <div class="form-container">
-            <label for="paciente-select">Seleccione un paciente:</label><br>
-            <select v-model="selectedPacienteId" id="paciente-select">
-                <option v-for="paciente in pacientes" :key="paciente.id" :value="paciente.id">
-                    {{ paciente.nombre }}
-                </option>
-            </select><br>
-            <label for="paciente-type-select">Seleccione un tipo de llamada:</label><br>
-            <select v-model="selectedPacienteType" id="paciente-type-select">
-                <option value="1">Entrantes</option>
-                <option value="0">Salientes</option>
-            </select><br>
-            <button @click="logHistoricoPaciente">Reporte historico del paciente</button>
-        </div>
     </div>
 </template>
 
