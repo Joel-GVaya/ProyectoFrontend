@@ -74,27 +74,21 @@ export default {
       }),
     };
   },
+
   mounted() {
-    const usuario = JSON.parse(localStorage.getItem("operador"));
-    if (!usuario) {
-      this.$router.push("/login");
-      return;
-    }
     if (this.id) {
-      this.loadPatient(this.id).then((paciente) => {
-        if (paciente) {
-          this.form = JSON.parse(JSON.stringify(paciente));
-
-          if (this.form.fecha_nac) {
-            const fecha = new Date(this.form.fecha_nac);
-            this.form.fecha_nac = fecha.toISOString().split("T")[0];
-          }
-
-          // Convertir autonomia de 0/1 a false/true
-          this.form.autonomia = this.form.autonomia === 1;
-        }
-      });
+      this.cargarPaciente();
     }
+  },
+
+  watch: {
+    id(newId) {
+      if (!newId) {
+        this.cargarPaciente();
+      } else {
+        this.form = {}
+      }
+    },
   },
 
   computed: {
@@ -109,12 +103,24 @@ export default {
         this.form.zona_id = zonaEncontrada ? Number(zonaEncontrada.id) : "";
       },
     },
-
   },
-
 
   methods: {
     ...mapActions(useDataStore, ["loadPatient", "addPatient", "updatePatient", "populatePacientes"]),
+    
+    async cargarPaciente() {
+      const paciente = await this.loadPatient(this.id);
+      if (paciente) {
+        this.form = JSON.parse(JSON.stringify(paciente));
+
+        if (this.form.fecha_nac) {
+          const fecha = new Date(this.form.fecha_nac);
+          this.form.fecha_nac = fecha.toISOString().split("T")[0];
+        }
+        this.form.autonomia = this.form.autonomia === 1;
+      }
+    },
+
     async submitPatient() {
       const usuario = {
         id: this.id ? Number(this.id) : null,

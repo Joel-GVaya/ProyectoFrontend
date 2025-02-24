@@ -8,8 +8,6 @@ export default {
   data() {
     return {
       paciente: {},
-      llamadasEntrantes: [],
-      llamadasSalientes: [],
     };
   },
 
@@ -19,33 +17,38 @@ export default {
       "getLlamadasSalientesByPacienteId",
       "getLlamadasEntrantesByPacienteId",
     ]),
+
+    llamadasEntrantes() {
+      return this.getLlamadasEntrantesByPacienteId(this.id);
+    },
+
+    llamadasSalientes() {
+      return this.getLlamadasSalientesByPacienteId(this.id);
+    },
   },
 
   methods: {
-    ...mapActions(useDataStore, ["getPacienteByID"]),
+    ...mapActions(useDataStore, ["getPacienteByID", "populateLlamadasSalientes", "populateLlamadasEntrantes"]),
 
     editarLlamadaEntrante(id) {
-      this.$router.push({ name: "editIncomingCall", params: { id: id }, query: { paciente_id: this.id } });
+      this.$router.push({ name: "editIncomingCall", params: { id }, query: { paciente_id: this.id } });
     },
 
     editarLlamadaSaliente(id) {
-      this.$router.push({ name: "editOutgoingCall", params: { id: id }, query: { paciente_id: this.id } });
+      this.$router.push({ name: "editOutgoingCall", params: { id }, query: { paciente_id: this.id } });
     },
 
     formatDuracion(duracionEnSegundos) {
-      if (duracionEnSegundos < 60) {
-        return `${duracionEnSegundos} segundos`;
-      } else {
-        const minutos = Math.floor(duracionEnSegundos / 60);
-        return minutos > 1 ? `${minutos} minutos` : `${minutos} minuto`;
-      }
+      const minutos = Math.floor(duracionEnSegundos / 60);
+      return minutos > 0
+        ? `${minutos} ${minutos === 1 ? "minuto" : "minutos"}`
+        : `${duracionEnSegundos} segundos`;
     },
 
     async cargarPaciente() {
       try {
         this.paciente = await this.getPacienteByID(this.id);
-        this.llamadasEntrantes = await this.getLlamadasEntrantesByPacienteId(this.id);
-        this.llamadasSalientes = await this.getLlamadasSalientesByPacienteId(this.id);
+        await Promise.all([this.populateLlamadasEntrantes(), this.populateLlamadasSalientes()]);
       } catch (error) {
         alert("Error al cargar el paciente: " + error);
       }
@@ -57,11 +60,8 @@ export default {
   },
 
   watch: {
-    id: {
-      immediate: true,
-      handler() {
-        this.cargarPaciente();
-      },
+    id() {
+      this.cargarPaciente();
     },
   },
 };

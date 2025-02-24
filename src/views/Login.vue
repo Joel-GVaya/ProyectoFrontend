@@ -3,7 +3,6 @@ import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 import { mapActions } from "pinia";
 import { useDataStore } from "@/stores/store";
-import { loginWithGoogle } from "@/googleAuth/auth.js";
 
 export default {
   name: "Login",
@@ -44,15 +43,6 @@ export default {
       }
     },
 
-    async iniciarSessionGoogle() {
-      const user = await loginWithGoogle();
-      if (user) {
-        this.$router.push({ name: "home" });
-      } else {
-        alert("Error al iniciar sesión con Google.");
-      }
-    },
-
   },
 
 };
@@ -79,10 +69,6 @@ export default {
               </div>
 
               <button type="submit" class="btn btn-primary w-100">Enviar</button>
-              <button type="button" class="btn btn-danger w-100 mt-2" @click="iniciarSessionGoogle">
-                Iniciar sesión con Google
-              </button>
-
             </Form>
           </div>
         </div>
