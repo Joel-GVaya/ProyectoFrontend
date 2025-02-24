@@ -3,6 +3,7 @@ import { useDataStore } from "../stores/store";
 import { mapState, mapActions } from "pinia";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
+
 export default {
   components: {
     Form,
@@ -46,7 +47,7 @@ export default {
         .number()
         .min(0, "Los segundos deben ser 0 o más")
         .max(59, "Los segundos deben ser menores de 60")
-        .required("Especifíca los segundos de la llamada"),
+        .required("Espefíca los segundos de la llamada"),
     }).test(
       "duracion-valida",
       "La duración total de la llamada no puede ser 0",
@@ -59,9 +60,28 @@ export default {
     );
 
     return {
-      llamada: {
-        dia: "",
-        hora: "",
+      llamada: this.datosLlamada(),
+      operador: JSON.parse(localStorage.getItem('operador'))?.nombre || '',
+      mySchema,
+    };
+  },
+  watch: {
+    id(newValue) {
+      if (!newValue) {
+        this.resetLlamada();
+      } else {
+        this.cargarLlamada();
+      }
+    },
+  },
+  methods: {
+    ...mapActions(useDataStore, ["registrarLlamadaSaliente", "editOutgoingCall", "getLlamadaSaliente"]),
+
+    datosLlamada() {
+      const now = new Date();
+      return {
+        dia: now.toISOString().split("T")[0],
+        hora: now.toTimeString().slice(0, 5),
         user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
         paciente_id: this.$route.query.paciente_id || "",
         descripcion: "",
@@ -70,13 +90,8 @@ export default {
         horas: null,
         minutos: null,
         segundos: null,
-      },
-      operador: {},
-      mySchema,
-    };
-  },
-  methods: {
-    ...mapActions(useDataStore, ["registrarLlamadaSaliente", "editOutgoingCall", "getLlamadaSaliente"]),
+      };
+    },
 
     async submitLlamada() {
       const duracionTotal = (this.llamada.horas * 60 + this.llamada.minutos) * 60 + this.llamada.segundos;
@@ -132,27 +147,16 @@ export default {
     },
 
     resetLlamada() {
-      this.llamada = {
-        dia: "",
-        hora: "",
-        user_id: JSON.parse(localStorage.getItem('operador'))?.id || null,
-        paciente_id: this.$route.query.paciente_id || "",
-        descripcion: "",
-        planificado: this.planificado ? true : false,
-        duracion: "",
-        horas: null,
-        minutos: null,
-        segundos: null,
-      };
+      this.llamada = this.datosLlamada();
       this.operador = JSON.parse(localStorage.getItem('operador'))?.nombre || '';
+      if (this.$refs.form) {
+        this.$refs.form.resetForm();
+      }
     },
   },
   async mounted() {
     if (!this.id) {
-      const now = new Date();
-      this.llamada.dia = now.toISOString().split("T")[0];
-      this.llamada.hora = now.toTimeString().slice(0, 5);
-      this.operador = JSON.parse(localStorage.getItem('operador')).nombre;
+      this.resetLlamada();
     } else {
       await this.cargarLlamada();
       this.operador = this.getNomOperadorById(this.llamada.user_id);
@@ -163,8 +167,9 @@ export default {
 
 <template>
   <div id="form" class="container mt-5">
-    <h3 class="mb-4">Registrar llamada saliente</h3>
-    <Form id="llamadaForm" method="post" @submit="submitLlamada" :validation-schema="mySchema">
+    <h3 class="mb-4" v-if="!this.id">Registrar llamada saliente</h3>
+    <h3 class="mb-4" v-else>Editar llamada saliente</h3>
+    <Form id="llamadaForm" method="post" @submit="submitLlamada" :validation-schema="mySchema" ref="form">
       <div class="mb-3">
         <label for="user_id" class="form-label">Operador:</label>
         <Field type="text" name="user_id" v-model="operador" class="form-control" readonly />

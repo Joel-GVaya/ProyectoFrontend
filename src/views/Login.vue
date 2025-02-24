@@ -30,7 +30,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(useDataStore, ["login", "populatePacientes"]),
+    ...mapActions(useDataStore, ["login", "populatePacientes", "anadirMensaje"]),
 
     async handleSubmit() {
       const { correo, paswd } = this.form;
@@ -39,7 +39,7 @@ export default {
         await this.populatePacientes();
         this.$router.push({ name: "home" });
       } else {
-        alert("Correo o contraseña incorrectos");
+        this.anadirMensaje("Correo o contraseña incorrectos");
       }
     },
 

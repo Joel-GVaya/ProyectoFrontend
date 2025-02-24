@@ -52,11 +52,16 @@ export default {
     }
   },
 
-  async mounted() {
+  mounted() {
     const usuario = JSON.parse(localStorage.getItem("operador"));
     if (!usuario) {
       this.$router.push("/login");
       return;
+    }
+
+    const savedPage = localStorage.getItem("currentPage");
+    if (savedPage) {
+      this.currentPage = Number(savedPage);
     }
   },
 
@@ -73,6 +78,7 @@ export default {
     cambiarPagina(pagina) {
       if (pagina > 0 && pagina <= this.totalPages) {
         this.currentPage = pagina;
+        localStorage.setItem("currentPage", pagina);
       }
     }
   },

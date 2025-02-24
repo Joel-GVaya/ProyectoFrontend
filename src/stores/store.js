@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
-const SERVER = "https://back.projectegrup3.ddaw.es/api";
+// const SERVER = "https://back.projectegrup3.ddaw.es/api";
+const SERVER = "http://localhost:8000/api";
 
 export const useDataStore = defineStore("data", {
   state() {
@@ -11,6 +12,7 @@ export const useDataStore = defineStore("data", {
       llamadas_salientes: [],
       operadores: [],
       zonas: [],
+      messages: [],
     };
   },
 
@@ -46,7 +48,6 @@ export const useDataStore = defineStore("data", {
     getAuthHeaders() {
       let token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
       if (!token) {
-        console.error("No hay token disponible");
         return null;
       }
       return { headers: { Authorization: `Bearer ${token}` } };
@@ -70,7 +71,6 @@ export const useDataStore = defineStore("data", {
           return null;
         }
       } catch (error) {
-        console.error(`Error en login con correo: ${correo}`, error);
         return null;
       }
     },
@@ -86,7 +86,7 @@ export const useDataStore = defineStore("data", {
         );
         this.llamadas_salientes = response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
     async populateLlamadasEntrantes() {
@@ -99,7 +99,7 @@ export const useDataStore = defineStore("data", {
         );
         this.llamadas_entrantes = response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
     async populateZonas() {
@@ -109,7 +109,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/zonas`, headers);
         this.zonas = response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
 
@@ -120,7 +120,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/operadores`, headers);
         this.operadores = response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
     async populatePacientes() {
@@ -131,7 +131,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/pacientes`, headers);
         this.pacientes = response.data.data;
       } catch (error) {
-        console.log("Error al cargar pacientes:", error);
+        this.anadirMensaje("Error al cargar pacientes: " + error.message);
       }
     },
 
@@ -148,7 +148,7 @@ export const useDataStore = defineStore("data", {
 
         this.llamadas_entrantes.push(response.data.data);
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
 
@@ -165,7 +165,7 @@ export const useDataStore = defineStore("data", {
 
         this.llamadas_salientes.push(response.data.data);
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
 
@@ -181,7 +181,7 @@ export const useDataStore = defineStore("data", {
           this.llamadas_entrantes.splice(index, 1);
         }
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
 
@@ -201,7 +201,7 @@ export const useDataStore = defineStore("data", {
           this.llamadas_entrantes[index] = response.data.data;
         }
       } catch (error) {
-        console.log(error.message);
+        this.anadirMensaje(error.message);
       }
     },
 
@@ -221,7 +221,7 @@ export const useDataStore = defineStore("data", {
           this.llamadas_salientes[index] = response.data.data;
         }
       } catch (error) {
-        console.log(error.message);
+        this.anadirMensaje(error.message);
       }
     },
 
@@ -235,7 +235,7 @@ export const useDataStore = defineStore("data", {
         );
         return response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
         return;
       }
     },
@@ -249,7 +249,7 @@ export const useDataStore = defineStore("data", {
         );
         return response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
         return;
       }
     },
@@ -261,11 +261,10 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/pacientes/${id}`, headers);
         return response.data.data;
       } catch (error) {
-        console.log(`Error al obtener el paciente con id: ${id}`, error);
+        this.anadirMensaje(`Error al obtener el paciente con id: ${id}`);
         return null;
       }
     },
-
     async getOperadorByID(id) {
       try {
         const headers = this.getAuthHeaders();
@@ -273,11 +272,10 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/operadores/${id}`, headers);
         return response.data.data;
       } catch (error) {
-        console.log(`Error al obtener el operador con id: ${id}`, error);
+        this.anadirMensaje(`Error al obtener el operador con id: ${id}`);
         return null;
       }
     },
-
     async darDeBajaPaciente(id) {
       try {
         if (confirm("¿Está seguro que desea dar de baja a este paciente?")) {
@@ -292,7 +290,7 @@ export const useDataStore = defineStore("data", {
           }
         }
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
     async loadPatient(id) {
@@ -302,7 +300,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/pacientes/${id}`, headers);
         return response.data.data;
       } catch (error) {
-        console.log("Error al cargar los datos del paciente.");
+        this.anadirMensaje("Error al cargar los datos del paciente.");
       }
     },
     async addPatient(paciente) {
@@ -316,10 +314,9 @@ export const useDataStore = defineStore("data", {
         );
         this.pacientes.push(reponse.data.data);
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
-
     async updatePatient(paciente) {
       try {
         const headers = this.getAuthHeaders();
@@ -334,10 +331,9 @@ export const useDataStore = defineStore("data", {
           this.pacientes[index] = response.data.data;
         }
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
       }
     },
-
     async getLlamadasEntrantesOperador(user_id) {
       try {
         const headers = this.getAuthHeaders();
@@ -348,11 +344,10 @@ export const useDataStore = defineStore("data", {
         );
         return response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
         return [];
       }
     },
-
     async getLlamadasEntrantesPaciente(paciente_id) {
       try {
         const headers = this.getAuthHeaders();
@@ -363,11 +358,10 @@ export const useDataStore = defineStore("data", {
         );
         return response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
         return [];
       }
     },
-
     async getLlamadasSalientesOperador(user_id) {
       try {
         const headers = this.getAuthHeaders();
@@ -378,11 +372,10 @@ export const useDataStore = defineStore("data", {
         );
         return response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
         return [];
       }
     },
-
     async getZonas() {
       try {
         const headers = this.getAuthHeaders();
@@ -390,11 +383,10 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/zonas`, headers);
         return response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
         return [];
       }
     },
-
     async getAvisos() {
       try {
         const headers = this.getAuthHeaders();
@@ -402,11 +394,10 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/avisos`, headers);
         return response.data.data;
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
         return [];
       }
     },
-
     async getAvisoByID(id) {
       try {
         const headers = this.getAuthHeaders();
@@ -414,7 +405,7 @@ export const useDataStore = defineStore("data", {
         const response = await axios.get(`${SERVER}/avisos/${id}`, headers);
         return response.data.data;
       } catch (error) {
-        console.log(`Error al obtener el aviso con id: ${id}`, error);
+        this.anadirMensaje(`Error al obtener el aviso con id: ${id}`);
         return null;
       }
     },
@@ -432,7 +423,7 @@ export const useDataStore = defineStore("data", {
           this.avisos[index] = response.data.data;
         }
       } catch (error) {
-        console.log(error.message);
+        this.anadirMensaje(error.message);
       }
     },
     async deleteAvisoByID(id) {
@@ -441,18 +432,61 @@ export const useDataStore = defineStore("data", {
         if (!headers) return;
         await axios.delete(`${SERVER}/avisos/${id}`, headers);
       } catch (error) {
-        console.log(`Error al eliminar el aviso con id: ${id}`, error);
+        this.anadirMensaje(`Error al eliminar el aviso con id: ${id}`);
       }
     },
-    
     async registrarAviso(aviso) {
       try {
         const headers = this.getAuthHeaders();
         if (!headers) return;
         const response = await axios.post(`${SERVER}/avisos`, aviso, headers);
       } catch (error) {
-        console.log(error);
+        this.anadirMensaje(error.message);
+      }
+    },
+    async anadirMensaje(mensaje) {
+      try {
+        this.messages.push(mensaje);
+        setTimeout(() => {
+          this.borrarMensaje(this.messages.length - 1);
+        }
+        , 4000);
+      } catch (error) {
+        console.error("Error al añadir mensaje:", error);
+      }
+    },
+    async borrarMensaje(indice) {
+      try {
+        this.messages.splice(indice, 1);
+      } catch (error) {
+        this.anadirMensaje(error.message);
       }
     },
   },
+
+  async reportePacientes() {
+    try {
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+      const response = await axios.get(`${SERVER}/reportes/pacientes`, headers);
+      return response.data.data.sort((a, b) => a.apellido.localeCompare(b.apellido));
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  },
+
+  async reporteHistoricoZona(id) {
+    try {
+      const headers = this.getAuthHeaders();
+      if (!headers) return;
+      const response = await axios.get(`${SERVER}/reportes/emergencias/${id}`, headers);
+      return response.data.data;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  },
+
+  
 });
