@@ -17,7 +17,7 @@ export default {
     },
     methods: {
 
-        ...mapActions(useDataStore, ["reporteEmergencias", "reportePacientes", "reporteLlamadasProgramadas", "reporteLlamadasRealizadas", "reporteHistoricoPaciente"]),
+        ...mapActions(useDataStore, ["reporteEmergencias", "reportePacientes", "reporteLlamadasProgramadas", "reporteLlamadasRealizadas", "reporteHistoricoPaciente", "anadirMensaje"]),
 
         logEmergencias() {
             this.reporteEmergencias();
@@ -35,7 +35,7 @@ export default {
             if (this.selectedPacienteId) {
                 this.reporteHistoricoPaciente(this.selectedPacienteId);
             } else {
-                alert('Seleccione un paciente');
+                this.anadirMensaje('Seleccione un paciente');
             }
         }
     }

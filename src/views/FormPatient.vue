@@ -1,18 +1,11 @@
 <script>
-import { Form, Field, ErrorMessage } from "vee-validate";
+import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { useDataStore } from "../stores/store";
 import { mapState, mapActions } from "pinia";
 import * as yup from "yup";
 
 export default {
-  name: "RegistroPaciente",
-
-  props: {
-    id: {
-      type: String,
-      default: null,
-    },
-  },
+  props: ["id"],
 
   components: {
     Form,
@@ -83,10 +76,10 @@ export default {
 
   watch: {
     id(newId) {
-      if (!newId) {
+      if (newId) {
         this.cargarPaciente();
       } else {
-        this.form = {}
+        this.resetForm();
       }
     },
   },
@@ -109,6 +102,7 @@ export default {
     ...mapActions(useDataStore, ["loadPatient", "addPatient", "updatePatient", "populatePacientes"]),
     
     async cargarPaciente() {
+      if (!this.id) return;
       const paciente = await this.loadPatient(this.id);
       if (paciente) {
         this.form = JSON.parse(JSON.stringify(paciente));
@@ -159,6 +153,28 @@ export default {
     eliminarPersonaContacto(index) {
       this.form.persona_contacto.splice(index, 1);
     },
+
+    resetForm() {
+      this.form = {
+        nombre: "",
+        fecha_nac: "",
+        DNI: "",
+        num_sip: "",
+        telefono: "",
+        correo: "",
+        direccion: "",
+        ciudad: "",
+        cp: "",
+        zona_id: "",
+        sit_personal: "",
+        sit_sanitaria: "",
+        sit_habitaculo: "",
+        sit_economica: "",
+        autonomia: false,
+        persona_contacto: [{ nombre: "", apellido: "", telefono: "", relacion: "" }],
+      };
+      this.$refs.form.resetForm();
+    },
   },
 };
 </script>
@@ -169,7 +185,7 @@ export default {
     <h1 class="text-center mb-4" v-else>Editar paciente</h1>
     <div class="card shadow">
       <div class="card-body">
-        <Form @submit="submitPatient" :validation-schema="schema">
+        <Form @submit="submitPatient" :validation-schema="schema" ref="form">
           <div class="mb-3">
             <label class="form-label">Nombre completo</label>
             <Field name="nombre" v-model="form.nombre" type="text" class="form-control"

@@ -28,7 +28,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(useDataStore, ["getPacienteByID", "populateLlamadasSalientes", "populateLlamadasEntrantes"]),
+    ...mapActions(useDataStore, ["getPacienteByID", "populateLlamadasSalientes", "populateLlamadasEntrantes", "anadirMensaje"]),
 
     editarLlamadaEntrante(id) {
       this.$router.push({ name: "editIncomingCall", params: { id }, query: { paciente_id: this.id } });
@@ -50,7 +50,7 @@ export default {
         this.paciente = await this.getPacienteByID(this.id);
         await Promise.all([this.populateLlamadasEntrantes(), this.populateLlamadasSalientes()]);
       } catch (error) {
-        alert("Error al cargar el paciente: " + error);
+        this.anadirMensaje("Error al cargar el paciente: " + error);
       }
     },
   },

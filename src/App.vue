@@ -2,12 +2,14 @@
 import { mapActions } from 'pinia';
 import { useDataStore } from './stores/store';
 import NavBar from '@/components/NavBar.vue';
+import AppMessages from './components/AppMessages.vue';
 
 export default {
   name: 'App',
   
   components: {
     NavBar,
+    AppMessages
   },
 
   methods: {
@@ -30,6 +32,7 @@ export default {
     <header>
       <NavBar />
     </header>
+    <app-messages />
     
     <RouterView />
     
